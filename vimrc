@@ -347,7 +347,6 @@ nnoremap <Leader>g :GFiles<CR>
 
 nnoremap <Leader>h :History<CR>
 
-
 " search file in
 
 " - current working direcotry
@@ -380,8 +379,10 @@ nnoremap <Leader>c :BLines<CR>
 nnoremap <Leader>C :Lines<CR>
 
 nnoremap { 10kzz
+nnoremap <C-k> 10kzz
 
 nnoremap } 10jzz
+nnoremap <C-j> 10jzz
 
 " Movement in insert mode
 inoremap <C-h> <C-o>h

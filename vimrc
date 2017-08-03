@@ -1,10 +1,9 @@
-syntax on
-
-""""""""""""""""""""
-" Plugins
-""""""""""""""""""""
 set nocompatible              " be iMproved, required
 filetype off                  " required
+
+" =====================
+" Plugins
+" =====================
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -15,18 +14,15 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-" Coloscheme First!!
-" Manually download these and add to ~/.vim/colors/
-" colorscheme petrel
-" let g:space_vim_dark_background = 235
-" 233(darkets) -> 238(lightest)
-" colorscheme space-vim-dark
-colorscheme Tomorrow-Night-Eighties
+Plugin 'flazz/vim-colorschemes'
+
+" Bundle 'edkolev/tmuxline.vim'
 
 " Vim airline theme
 Plugin 'vim-airline/vim-airline'
+
 Plugin 'vim-airline/vim-airline-themes'
-Bundle 'edkolev/tmuxline.vim'
+
 let g:airline_theme='luna'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
@@ -39,81 +35,105 @@ let g:airline#extensions#tabline#enabled = 1
 " Show just the filename
 let g:airline#extensions#tabline#fnamemod = ':t'
 
-" Git fugitive
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-rails'
-Plugin 'airblade/vim-gitgutter'
+" FZF
+Plugin 'junegunn/fzf'
+Plugin 'junegunn/fzf.vim'
 
-" Tmux
-Plugin 'christoomey/vim-tmux-navigator'
-let g:tmux_navigator_no_mappings = 1
-nnoremap <silent> <C-h> :TmuxNavigateLeft<cr>
-nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
-nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
-nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
+Plugin 'alvan/vim-closetag'
+" filenames like *.xml, *.html, *.xhtml, ...
+" Then after you press <kbd>&gt;</kbd> in these files, this plugin will try to close the current tag.
+"
+let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*.jsx'
+
+" filenames like *.xml, *.xhtml, ...
+" This will make the list of non closing tags self closing in the specified files.
+"
+" let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
+
+" integer value [0|1]
+" This will make the list of non closing tags case sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
+"
+let g:closetag_emptyTags_caseSensitive = 1
+
+" Shortcut for closing tags, default is '>'
+"
+let g:closetag_shortcut = '>'
+
+" Add > at current position without closing the current tag, default is '<leader>>'
+"
+let g:closetag_close_shortcut = '<leader>>'
+
+Plugin 'pangloss/vim-javascript'
+
+Plugin 'Yggdroot/indentLine'
+
+" let g:indentLine_enabled = 1
+
+" Vim
+" http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
+let g:indentLine_color_term = 237
+
+" GVim
+" let g:indentLine_color_gui = '#A4E57E'
+
+" none X terminal
+" let g:indentLine_color_tty_light = 7 " (default: 4)
+" let g:indentLine_color_dark = 1 " (default: 2)
+
+" Background (Vim, GVim)
+" let g:indentLine_bgcolor_term = 202
+" let g:indentLine_bgcolor_gui = '#000000'
+
+let g:indentLine_char = '¦'
+
+Plugin 'slim-template/vim-slim.git'
+
+Plugin 'tpope/vim-haml'
+
+Plugin 'airblade/vim-gitgutter'
+" let g:gitgutter_sign_column_always = 1
+
+Plugin 'hail2u/vim-css3-syntax'
+
+Plugin 'vim-ruby/vim-ruby'
+
+Plugin 'tpope/vim-rails'
 
 " NerdTree
 Plugin 'scrooloose/nerdtree'
 Plugin 'jistr/vim-nerdtree-tabs'
 nmap <silent> <leader>t :NERDTreeTabsToggle<CR>
 let g:nerdtree_tabs_open_on_console_startup = 0
+" enable line numbers
+let NERDTreeShowLineNumbers=1
 
-" String and File search
-Plugin 'ctrlpvim/ctrlp.vim'
-let g:ctrlp_working_path_mode = 'r'
-nnoremap <silent> <Leader>o :CtrlPBuffer<cr>
+Plugin 'chr4/nginx.vim'
+au BufRead,BufNewFile *nginx/*.conf set ft=nginx
 
-" Find text in file
-Plugin 'mileszs/ack.vim'
-" this requires the silver surfer for speed
-if executable('ag')
-  " Use Ag over Grep
-  " set grepprg=ag\ --nogroup\ --nocolor
-  " Use Ag of Ack
-  " let g:ackprg = 'ag --nogroup --nocolor '
+" http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
+Plugin 'godlygeek/tabular'
 
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+Plugin 'plasticboy/vim-markdown'
+set nofoldenable
+let g:vim_markdown_conceal = 0
 
-  " ag is fast enough that CtrlP doesn't need to cache
-  let g:ctrlp_use_caching = 0
-endif
-" Ack config
-" cnoreabbrev Ack Ack!
-" nnoremap <Leader>a :Ack!<Space>
-" nnoremap K :Ack! "\b<C-R><C-W>\b"<CR>:cw<CR>
+Plugin 'scrooloose/nerdcommenter'
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+" disable default mapping https://github.com/scrooloose/nerdcommenter/blob/master/plugin/NERD_commenter.vim#L3009
+let g:NERDCreateDefaultMappings = 0
 
-" FZF
-Plugin 'junegunn/fzf'
-Plugin 'junegunn/fzf.vim'
-
-" Mapping selecting mappings
-nmap <leader><tab> <plug>(fzf-maps-n)
-xmap <leader><tab> <plug>(fzf-maps-x)
-omap <leader><tab> <plug>(fzf-maps-o)
-
-" Insert mode completion
-imap <c-x><c-k> <plug>(fzf-complete-word)
-imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
-imap <c-x><c-l> <plug>(fzf-complete-line)
-
-" Advanced customization using autoload functions
-inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
-
-" Custom fzf mappings 
-nnoremap <Leader>b :Buffers<CR>
-nnoremap <Leader>f :Files<CR>
-nnoremap <Leader>g :GFiles<CR>
-nnoremap K :Ag <C-R><C-W><CR>
-nnoremap <Leader>a :Ag<space>
-
+" All of your Plugins must be added before the following line
 call vundle#end()            " required
-" Run this after adding to the lines above
-" vim +PluginInstall +qall
-filetype plugin indent on    " required
 
-""""""""""""""""""""
+" =====================
+" Settings
+" =====================
+
+syntax on
+filetype plugin indent on    " required
 
 set backspace=indent,eol,start
 set nobackup		                " do not keep a backup file, use versions instead
@@ -137,7 +157,10 @@ set hlsearch
 set clipboard=unnamed
 set cmdheight=1
 set laststatus=2
-set cursorline
+" set cursorline
+" set term=xterm
+set nowrap
+set confirm
 
 " Split settings
 set splitbelow
@@ -145,74 +168,249 @@ set splitright
 set pastetoggle=<F3>
 
 set swapfile
-set dir=~/tmp
+set dir=~/.vim/tmp
 set hidden
-set showmatch
-set matchtime=3
 
-""""""""""""""""""""
-" KEYBOARD MAPPINGS
-""""""""""""""""""""
+set novisualbell
+set noerrorbells
 
-" remap ESC
-imap jk <ESC>
-vmap jk <ESC>
-" nnoremap <leader>jk <ESC>
-" vnoremap <leader>jk <ESC>
+" yank is also copied to clipboard:  https://stackoverflow.com/a/9166988/3288608
+set guioptions+=a
 
-" MISC
-nnoremap noh :nohlsearch<CR>
-nnoremap <Leader>w :w<SPACE> 
-nnoremap <Leader>wq :wq<SPACE> 
-nnoremap <Leader>qq :q!<CR>
+" Explorer setup
+let g:netrw_bufsettings = 'noma nomod nu nowrap ro nobl'
 
-" Copy relative filename to clipboard
-nmap <Leader>fr :let @*=expand("%")<CR>
-" Copy full path filename with path to clipboard
-nmap <Leader>fp :let @*=expand("%:p")<CR>
-" Copy filename with path to clipboard
-nmap <Leader>ff :let @*=expand("%:t")<CR>
+" you need to run fg after to return to vim
+set shellcmdflag=-ic
+
+colorscheme Tomorrow-Night-Eighties
+
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+
+set scrolloff=3
+
+" =====================
+" Scripts
+" =====================
+
+" remove trailing spaces
+autocmd BufWritePre * %s/\s\+$//e
+
+" confirm quit
+" https://stackoverflow.com/a/32239265/3288608
+function! ConfirmQuit(writeFile)
+  if (a:writeFile)
+    if (expand('%:t')=="")
+      echo "Can't save a file with no name."
+      return
+    endif
+    :write
+  endif
+
+  if (winnr('$')==1 && tabpagenr('$')==1)
+    if (confirm("Do you really want to quit?", "&Yes\n&No", 2)==1)
+      :quit
+    endif
+  else
+    :quit
+  endif
+endfu
+cabbrev q <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'call ConfirmQuit(0)' : 'q')<CR>
+
+function! ConfirmDelete()
+  if (confirm("Confirm to delete the file ".expand('%')."?", "&Yes\n&No", 2)==1)
+    :call delete(expand('%')) | bdelete!
+  endif
+endfu
+
+" save with auto create directory
+" https://stackoverflow.com/a/4294176/3288608
+function! s:MkNonExDir(file, buf)
+  if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+    let dir=fnamemodify(a:file, ':h')
+    if !isdirectory(dir)
+      call mkdir(dir, 'p')
+    endif
+  endif
+endfunction
+augroup BWCCreateDir
+  autocmd!
+  autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
+
+" ruby auto complete
+" https://github.com/vim-ruby/vim-ruby/wiki/VimRubySupport
+function! CloseRubyEndToken()
+  let current_line = getline( '.' )
+  let braces_at_end = '{\s*\(|\(,\|\s\|\w\)*|\s*\)\?$'
+  let stuff_without_do = '^\s*\(class\|if\|unless\|begin\|case\|for\|module\|while\|until\|def\)'
+  let stuff_without_do_too = '\s*\(if\|unless\|begin\|case\)'
+  let with_do = 'do\s*\(|\(,\|\s\|\w\)*|\s*\)\?$'
+
+  if match(current_line, braces_at_end) >= 0
+    return "\<CR>}\<C-O>O"
+  elseif match(current_line, stuff_without_do_too) >= 0
+    return "\<CR>end\<C-O>O"
+  elseif match(current_line, stuff_without_do) >= 0
+    return "\<CR>end\<C-O>O"
+  elseif match(current_line, with_do) >= 0
+    return "\<CR>end\<C-O>O"
+  else
+    return "\<CR>"
+  endif
+endfunction
+autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
+
+" inoremap <CR> <C-R>=CloseRubyEndToken()<CR>
+
+" https://stackoverflow.com/a/6271254/3288608
+function! s:get_visual_selection()
+  " Why is this not a built-in Vim script function?!
+  let [lnum1, col1] = getpos("'<")[1:2]
+  let [lnum2, col2] = getpos("'>")[1:2]
+  let lines = getline(lnum1, lnum2)
+  let lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][col1 - 1:]
+  return join(lines, "\n")
+endfunction
+
+" search files of current selected text
+" https://github.com/junegunn/fzf/wiki/Examples-(vim)#using-fzfwrap-function
+function! FileSearchRange() range
+  call fzf#run( fzf#wrap( { 'options': '-q' . s:get_visual_selection() } ) )
+endfunction
+" xnoremap <leader>f <esc>:'<,'>call FileSearchRange()<CR>
+vnoremap <leader>f :call FileSearchRange()<CR>
+
+" search current buffer of currently selected text
+function! CodeSearchRange() range
+  call fzf#vim#buffer_lines( s:get_visual_selection() )
+  " call fzf#vim#lines(s:get_visual_selection() )
+endfunction
+"xnoremap <leader>c <esc>:'<,'>call CodeSearchRange()<CR>
+vnoremap <leader>c :call CodeSearchRange()<CR>
+
+" search code to all files limited to the current buffer file extension,
+" search query is the selected text
+function! CodeSearchAgRange() range
+  call fzf#vim#grep('ag --nogroup --column -G "\.('. expand('%:e') .')$" --color '.s:get_visual_selection(), 1)
+endfunction
+" xnoremap <leader>C <esc>:'<,'>call CodeSearchAgRange()<CR>
+vnoremap <leader>C :call CodeSearchAgRange()<CR>
+
+" =====================
+" Keyboard Setup
+" =====================
 
 " reload vimrc
 nnoremap <Leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
-noremap <leader>ev :execute 'e ' . resolve(expand($MYVIMRC))<CR>
 
-" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
-" so that you can undo CTRL-U after inserting a line break.
-inoremap <C-U> <C-G>u<C-U>
+" buffer navigation uses Tab
+nnoremap <Tab>h :bprev!<CR>
+nnoremap <Tab>l :bnext!<CR>
+nnoremap <Tab><Tab> :b#<CR>
+nnoremap <Tab>q :bd!<CR>
 
-" Splits
-nnoremap vv :vsplit<SPACE>
-nnoremap vs :split<SPACE>
+" window navigation uses Tab w
+nnoremap <Tab>wv :vsplit<CR>
+" cycle to window
+nnoremap <Tab>ww <C-w>w<CR>
+" close window
+" nnoremap <Tab>wq <C-w>q<CR>
+nnoremap <silent> <Tab>wq :call ConfirmQuit(0)<CR>
+" next window
+nnoremap <Tab>wl <C-w>l<CR>
+" prev window
+nnoremap <Tab>wh <C-w>h<CR>
 
-" Close current split 
-nmap <leader>c :ene<CR>:bw #<CR>
+" run a command
+nnoremap <Leader><CR> :!
 
-" Buffers
-nnoremap <Leader>bj :bnext<cr>
-nnoremap <Leader>bk :bp<cr>
-" nnoremap <Leader>bb :buffers<CR>
-" nnoremap <Leader>ba :e<SPACE>
-nnoremap <Leader>bd :bd!<CR>
+" https://stackoverflow.com/a/6923282/3288608
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+cnoremap <C-k> <Up>
+cnoremap <C-j> <Down>
+cnoremap <C-h> <Left>
+cnoremap <C-l> <Right>
 
-" Tabs
-" nnoremap tn :tabnew<SPACE>
-" nnoremap tk :tabnext<CR>
-" nnoremap tj :tabprev<CR>
-" nnoremap th :tabfirst<CR>
-" nnoremap tl :tablast<CR>
+nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':p:h')<CR>/
+nnoremap <Leader>E :edit
 
-" Use buffers instead of tabs
-nnoremap tn :e<SPACE>
-nnoremap tj :bnext!<CR>
-nnoremap tk :bprev!<CR>
-nnoremap th :bfirst!<CR>
-nnoremap tl :blast!<CR>
-nnoremap td :bd!<CR>
-nnoremap tq <C-w>c
+" Custom fzf mappings
+nnoremap <Leader>b :Buffers<CR>
 
-" Git
-nnoremap <Leader>hu :GitGutterUndoHunk<CR>
-nnoremap <Leader>hr :GitGutterRevertHunk<CR>
-nnoremap <Leader>hj :GitGutterNextHunk<CR>
-nnoremap <Leader>hk :GitGutterPrevHunk<CR>
+" code search on current working directory
+nnoremap <Leader>a :Ag<space>
+
+nnoremap <Leader>g :GFiles<CR>
+
+nnoremap <Leader>h :History<CR>
+
+" search files on current working direcotry
+nnoremap <Leader>F :Files<CR>
+
+" search files on the directory of the current opened file
+nnoremap <Leader>f :Files %:p:h/<CR>
+
+" nnoremap <Leader>g :GFiles<CR>
+" nnoremap <Leader>k :Ag <C-R><C-W><CR>
+
+" find file in
+" models
+nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
+" views
+nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
+" controllers
+nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
+" app
+nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
+
+" easy search navigation
+nnoremap <Leader>w :Windows<CR>
+
+" code search in current open file
+nnoremap <Leader>c :BLines<CR>
+
+" code search in all opened files
+nnoremap <Leader>C :Lines<CR>
+
+nnoremap { 10kzz
+nnoremap } 10jzz
+
+" Movement in insert mode
+inoremap <C-h> <C-o>h
+inoremap <C-l> <C-o>a
+inoremap <C-j> <C-o>j
+inoremap <C-k> <C-o>k
+
+" search forward, in edit mode
+inoremap <C-f>l <C-o>f
+" search backward, in edit mode
+inoremap <C-f>h <C-o>F
+
+" center current active line in edit mode
+inoremap <C-z> <C-o>zz
+
+" F5 opens current buffer's folder in Finder
+nnoremap <F5> :silent call system("open '". expand('%:p:h') ."'")<CR>
+
+" code formating, using Tabularize, must have an existing selected text
+" http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
+" xnoremap <Leader><Tab> <esc>:'<,'>:Tab/
+vnoremap <Leader><Tab> :Tab/
+vnoremap <Leader><Tab>> :Tab/=><CR>
+vnoremap <Leader><Tab>= :Tab/=<CR>
+vnoremap <Leader><Tab>: :Tab/:\zs<CR>
+
+" shortcut for nerd comment
+nnoremap <silent> <leader><leader> :call NERDComment('n', 'Toggle')<CR>
+vnoremap <silent> <leader><leader> :call NERDComment('v', 'Toggle')<CR>
+
+" unbind shift-k, its annoying
+map <S-k> <Nop>
+
+" delete file with confirmation
+" to produce ^? special character, type ctrl-v first then the special character
+nnoremap <leader> :call ConfirmDelete()<CR>
+

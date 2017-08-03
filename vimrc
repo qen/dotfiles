@@ -347,24 +347,28 @@ nnoremap <Leader>g :GFiles<CR>
 
 nnoremap <Leader>h :History<CR>
 
-" search files on current working direcotry
+
+" search file in
+
+" - current working direcotry
 nnoremap <Leader>F :Files<CR>
 
-" search files on the directory of the current opened file
-nnoremap <Leader>f :Files %:p:h/<CR>
+" - the directory of the current opened file
+nnoremap <Leader>ff :call fzf#vim#files(expand('%:p:h'))<CR>
+
+" - models
+nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
+
+" - views
+nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
+
+" - controllers
+nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
+" - app
+nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 
 " nnoremap <Leader>g :GFiles<CR>
 " nnoremap <Leader>k :Ag <C-R><C-W><CR>
-
-" find file in
-" models
-nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
-" views
-nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
-" controllers
-nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
-" app
-nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 
 " easy search navigation
 nnoremap <Leader>w :Windows<CR>

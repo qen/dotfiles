@@ -380,6 +380,7 @@ nnoremap <Leader>c :BLines<CR>
 nnoremap <Leader>C :Lines<CR>
 
 nnoremap { 10kzz
+
 nnoremap } 10jzz
 
 " Movement in insert mode
@@ -390,6 +391,7 @@ inoremap <C-k> <C-o>k
 
 " search forward, in edit mode
 inoremap <C-f>l <C-o>f
+
 " search backward, in edit mode
 inoremap <C-f>h <C-o>F
 
@@ -418,3 +420,5 @@ map <S-k> <Nop>
 " to produce ^? special character, type ctrl-v first then the special character
 nnoremap <leader> :call ConfirmDelete()<CR>
 
+" save file
+noremap <leader>s :w<CR>

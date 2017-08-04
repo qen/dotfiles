@@ -39,31 +39,9 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
 
-Plugin 'alvan/vim-closetag'
-" filenames like *.xml, *.html, *.xhtml, ...
-" Then after you press <kbd>&gt;</kbd> in these files, this plugin will try to close the current tag.
-"
-let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*.jsx'
-
-" filenames like *.xml, *.xhtml, ...
-" This will make the list of non closing tags self closing in the specified files.
-"
-" let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
-
-" integer value [0|1]
-" This will make the list of non closing tags case sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
-"
-let g:closetag_emptyTags_caseSensitive = 1
-
-" Shortcut for closing tags, default is '>'
-"
-let g:closetag_shortcut = '>'
-
-" Add > at current position without closing the current tag, default is '<leader>>'
-"
-let g:closetag_close_shortcut = '<leader>>'
-
 Plugin 'pangloss/vim-javascript'
+
+Plugin 'mxw/vim-jsx'
 
 Plugin 'Yggdroot/indentLine'
 
@@ -124,6 +102,11 @@ let g:NERDTrimTrailingWhitespace = 1
 let g:NERDSpaceDelims = 1
 " disable default mapping https://github.com/scrooloose/nerdcommenter/blob/master/plugin/NERD_commenter.vim#L3009
 let g:NERDCreateDefaultMappings = 0
+
+Plugin 'tpope/vim-surround'
+let g:surround_no_insert_mappings = 0
+" https://github.com/tpope/vim-surround/issues/117#issuecomment-272007689
+set timeout timeoutlen=3000 ttimeoutlen=10
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -334,7 +317,7 @@ cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 
-nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':p:h')<CR>/
+nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <Leader>E :edit
 
 " Custom fzf mappings
@@ -353,7 +336,7 @@ nnoremap <Leader>h :History<CR>
 nnoremap <Leader>F :Files<CR>
 
 " - the directory of the current opened file
-nnoremap <Leader>ff :call fzf#vim#files(expand('%:p:h'))<CR>
+nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>
 
 " - models
 nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
@@ -368,9 +351,6 @@ nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 
 " nnoremap <Leader>g :GFiles<CR>
 " nnoremap <Leader>k :Ag <C-R><C-W><CR>
-
-" easy search navigation
-nnoremap <Leader>w :Windows<CR>
 
 " code search in current open file
 nnoremap <Leader>c :BLines<CR>
@@ -405,10 +385,19 @@ nnoremap <F5> :silent call system("open '". expand('%:p:h') ."'")<CR>
 " code formating, using Tabularize, must have an existing selected text
 " http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
 " xnoremap <Leader><Tab> <esc>:'<,'>:Tab/
-vnoremap <Leader><Tab> :Tab/
+vnoremap <Leader><Tab><space> :Tab/
 vnoremap <Leader><Tab>> :Tab/=><CR>
 vnoremap <Leader><Tab>= :Tab/=<CR>
 vnoremap <Leader><Tab>: :Tab/:\zs<CR>
+
+" surround selected text
+" https://www.reddit.com/r/vim/comments/25acm8/dear_amazing_vim_people_which_plugintrick_made/chftfel/?utm_content=permalink&utm_medium=front&utm_source=reddit&utm_name=vim
+" ` backtick
+" vnoremap <Leader><esc>`>a"<esc>`<i"<esc>
+" vnoremap <Leader>' <esc>`>a'<esc>`<i'<esc>
+" vnoremap <Leader>( <esc>`>a)<esc>`<i(<esc>
+" vnoremap <Leader>[ <esc>`>a]<esc>`<i[<esc>
+" vnoremap <Leader>{ <esc>`>a}<esc>`<i{<esc>
 
 " shortcut for nerd comment
 nnoremap <silent> <leader><leader> :call NERDComment('n', 'Toggle')<CR>
@@ -422,4 +411,4 @@ map <S-k> <Nop>
 nnoremap <leader> :call ConfirmDelete()<CR>
 
 " save file
-noremap <leader>s :w<CR>
+noremap <leader>w :w<CR>

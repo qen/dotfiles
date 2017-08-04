@@ -77,7 +77,6 @@ Plugin 'vim-ruby/vim-ruby'
 
 Plugin 'tpope/vim-rails'
 
-" NerdTree
 Plugin 'scrooloose/nerdtree'
 Plugin 'jistr/vim-nerdtree-tabs'
 nmap <silent> <leader>t :NERDTreeTabsToggle<CR>
@@ -107,6 +106,18 @@ Plugin 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
 " https://github.com/tpope/vim-surround/issues/117#issuecomment-272007689
 set timeout timeoutlen=3000 ttimeoutlen=10
+
+" NOT SURE IF I SHOULD ENABLE THIS,
+" doing so would add more plugin per language
+" Plugin 'vim-syntastic/syntastic'
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -166,9 +177,10 @@ let g:netrw_bufsettings = 'noma nomod nu nowrap ro nobl'
 " you need to run fg after to return to vim
 set shellcmdflag=-ic
 
+" autocmd ColorScheme * highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 colorscheme Tomorrow-Night-Eighties
-
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
 
 set scrolloff=3
 

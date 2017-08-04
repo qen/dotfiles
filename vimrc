@@ -119,6 +119,8 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
+" Plugin 'jiangmiao/auto-pairs'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 
@@ -183,6 +185,10 @@ highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE gui
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
 
 set scrolloff=3
+
+" redifine keyword definition, include dash
+" https://woss.name/articles/vim-iskeyword/
+set iskeyword=@,!,?,48-57,_,192-255,-
 
 " =====================
 " Scripts
@@ -255,6 +261,18 @@ function! CloseRubyEndToken()
   endif
 endfunction
 autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
+
+function! CloseCurlyBracketsToken()
+  let current_line = getline( '.' )
+  let braces_at_end = '{\s*$'
+
+  if match(current_line, braces_at_end) >= 0
+    return "\<CR>}\<C-O>O"
+  else
+    return "\<CR>"
+  endif
+endfunction
+autocmd FileType scss,css,javascript,javascript.jsx imap <buffer> <CR> <C-R>=CloseCurlyBracketsToken()<CR>
 
 " inoremap <CR> <C-R>=CloseRubyEndToken()<CR>
 
@@ -358,6 +376,7 @@ nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
 
 " - controllers
 nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
+
 " - app
 nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 

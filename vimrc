@@ -269,7 +269,7 @@ function! CloseCurlyBracketsToken()
   let current_line = getline( '.' )
   let braces_at_end = '{\s*$'
   " match(getline( '.' ), '{\s*$')
-  if match(current_line, braces_at_end) <= virtcol('.')
+  if match(current_line, braces_at_end) <= virtcol('.') && match(current_line, braces_at_end) > 0
     return "\<CR>}\<C-O>O"
   else
     return "\<CR>"
@@ -320,8 +320,6 @@ endfunction
 vnoremap <leader>C :call CodeSearchAgRange()<CR>
 
 function! CodeReplace(target, replace)
-  " echo a:target
-  " echo a:replace
   " :s%/a:target/a:replace/g
   execute ':%s/'.a:target.'/'.a:replace.'/g'
 endfunction

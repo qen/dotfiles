@@ -268,14 +268,14 @@ autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
 function! CloseCurlyBracketsToken()
   let current_line = getline( '.' )
   let braces_at_end = '{\s*$'
-
-  if match(current_line, braces_at_end) >= 0
+  " match(getline( '.' ), '{\s*$')
+  if match(current_line, braces_at_end) <= virtcol('.')
     return "\<CR>}\<C-O>O"
   else
     return "\<CR>"
   endif
 endfunction
-autocmd FileType scss,css,javascript,javascript.jsx imap <buffer> <CR> <C-R>=CloseCurlyBracketsToken()<CR>
+autocmd FileType scss,css,javascript,javascript.jsx,slim,haml imap <buffer> <CR> <C-R>=CloseCurlyBracketsToken()<CR>
 
 " inoremap <CR> <C-R>=CloseRubyEndToken()<CR>
 
@@ -298,21 +298,44 @@ endfunction
 " xnoremap <leader>f <esc>:'<,'>call FileSearchRange()<CR>
 vnoremap <leader>f :call FileSearchRange()<CR>
 
-" search current buffer of currently selected text
-function! CodeSearchRange() range
-  call fzf#vim#buffer_lines( s:get_visual_selection() )
-  " call fzf#vim#lines(s:get_visual_selection() )
+" code search current buffer or all open buffer of currently selected text
+function! CodeSearchRange(buffer_lines) range
+  if (a:buffer_lines)
+    call fzf#vim#buffer_lines( s:get_visual_selection() )
+  else
+    call fzf#vim#lines (s:get_visual_selection() )
+  endif
 endfunction
-"xnoremap <leader>c <esc>:'<,'>call CodeSearchRange()<CR>
-vnoremap <leader>c :call CodeSearchRange()<CR>
+" code search selected text on current file
+vnoremap <leader>c :call CodeSearchRange(1)<CR>
+" code search selected text on all buffers
+vnoremap <Tab>c :call CodeSearchRange(0)<CR>
 
-" search code to all files limited to the current buffer file extension,
+" code search to all files limited to the current buffer file extension,
 " search query is the selected text
 function! CodeSearchAgRange() range
   call fzf#vim#grep('ag --nogroup --column -G "\.('. expand('%:e') .')$" --color '.s:get_visual_selection(), 1)
 endfunction
 " xnoremap <leader>C <esc>:'<,'>call CodeSearchAgRange()<CR>
 vnoremap <leader>C :call CodeSearchAgRange()<CR>
+
+function! CodeReplace(target, replace)
+  " echo a:target
+  " echo a:replace
+  " :s%/a:target/a:replace/g
+  execute ':%s/'.a:target.'/'.a:replace.'/g'
+endfunction
+command! -nargs=* Replace call CodeReplace( <f-args> )
+
+function! CodeReplaceRange() range
+  let target = s:get_visual_selection()
+  call inputsave()
+  let replace = input('Replace >>'.target.'<<  with: ')
+  call inputrestore()
+  call CodeReplace( target , replace )
+endfunction
+vnoremap <c-r> :call CodeReplaceRange()<CR>
+
 
 " =====================
 " Keyboard Setup
@@ -334,7 +357,6 @@ nnoremap <Tab>wv :vsplit<CR>
 nnoremap <Tab>ww <C-w>w<CR>
 
 " close window
-" nnoremap <Tab>wq <C-w>q<CR>
 nnoremap <silent> <Tab>wq :call ConfirmQuit(0)<CR>
 
 " next window
@@ -383,7 +405,7 @@ nnoremap <Leader>h :History<CR>
 nnoremap <Leader>FF :Files<CR>
 
 " - find files in cwd that is similar to the file extension for the current open buffer
-nnoremap <Leader>Ff :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
+nnoremap <Leader>fF :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
 
 " - the directory of the current opened file
 nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>
@@ -421,9 +443,13 @@ inoremap <C-f>h <C-o>F
 " center current active line in edit mode
 inoremap <C-z> <C-o>zz
 
+" auto file completion
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+
 " remap omnicomplete to ctrl-space
-inoremap <c-space><c-space> <c-x><c-o><c-p>
-inoremap <c-@><c-@> <c-x><c-o><c-p>
+" inoremap <c-space><c-space> <c-x><c-o><c-p>
+" inoremap <c-@><c-@> <c-x><c-o><c-p>
 set omnifunc=syntaxcomplete#Complete
 
 " F5 opens current buffer's folder in Finder
@@ -458,3 +484,8 @@ nnoremap <leader> :call ConfirmDelete()<CR>
 
 " save file
 noremap <leader>w :w<CR>
+
+" Copy full path filename with path to clipboard
+nmap <F2> :let @*=expand("%:p")<CR>
+
+

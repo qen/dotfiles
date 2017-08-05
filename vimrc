@@ -132,18 +132,18 @@ syntax on
 filetype plugin indent on    " required
 
 set backspace=indent,eol,start
-set nobackup		                " do not keep a backup file, use versions instead
-set history=1000		            " keep 50 lines of command line history
+set nobackup                    " do not keep a backup file, use versions instead
+set history=1000                " keep 50 lines of command line history
 set encoding=utf-8
-set ruler		                    " show the cursor position all the time
-set showcmd		                  " display incomplete commands
+set ruler                       " show the cursor position all the time
+set showcmd                     " display incomplete commands
 set showmode
-set incsearch		                " do incremental searching
+set incsearch                   " do incremental searching
 set ruler
 set relativenumber
 set number
 set mouse=a
-set autoindent		              " always set autoindenting on
+set autoindent                  " always set autoindenting on
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
@@ -196,6 +196,9 @@ set iskeyword=@,!,?,48-57,_,192-255,-
 
 " remove trailing spaces
 autocmd BufWritePre * %s/\s\+$//e
+
+" convert all tab to spaces on save
+autocmd BufWritePre * :retab
 
 " confirm quit
 " https://stackoverflow.com/a/32239265/3288608
@@ -336,6 +339,12 @@ nnoremap <Tab>wl <C-w>l<CR>
 " prev window
 nnoremap <Tab>wh <C-w>h<CR>
 
+" search file to all open buffers
+nnoremap <Tab>f :Buffers<CR>
+
+" code search in all opened files
+nnoremap <Tab>c :Lines<CR>
+
 " run a command
 nnoremap <Leader><CR> :!
 
@@ -347,11 +356,15 @@ cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 
+nnoremap { 10kzz
+nnoremap <C-k> 10kzz
+nnoremap } 10jzz
+nnoremap <C-j> 10jzz
+
 nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <Leader>E :edit
 
 " Custom fzf mappings
-nnoremap <Leader>b :Buffers<CR>
 
 " code search on current working directory
 nnoremap <Leader>a :Ag<space>
@@ -360,10 +373,13 @@ nnoremap <Leader>g :GFiles<CR>
 
 nnoremap <Leader>h :History<CR>
 
-" search file in
+" search files
 
-" - current working direcotry
-nnoremap <Leader>F :Files<CR>
+" - current working direcotry, the global search
+nnoremap <Leader>FF :Files<CR>
+
+" - find files in cwd that is similar to the file extension for the current open buffer
+" nnoremap <Leader>Ff :Files<CR>
 
 " - the directory of the current opened file
 nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>
@@ -386,15 +402,6 @@ nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 " code search in current open file
 nnoremap <Leader>c :BLines<CR>
 
-" code search in all opened files
-nnoremap <Leader>C :Lines<CR>
-
-nnoremap { 10kzz
-nnoremap <C-k> 10kzz
-
-nnoremap } 10jzz
-nnoremap <C-j> 10jzz
-
 " Movement in insert mode
 inoremap <C-h> <C-o>h
 inoremap <C-l> <C-o>a
@@ -410,16 +417,20 @@ inoremap <C-f>h <C-o>F
 " center current active line in edit mode
 inoremap <C-z> <C-o>zz
 
+" remap omnicomplete to ctrl-space
+inoremap <c-space><c-space> <c-x><c-o><c-p>
+inoremap <c-@><c-@> <c-x><c-o><c-p>
+set omnifunc=syntaxcomplete#Complete
+
 " F5 opens current buffer's folder in Finder
 nnoremap <F5> :silent call system("open '". expand('%:p:h') ."'")<CR>
 
 " code formating, using Tabularize, must have an existing selected text
 " http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
-" xnoremap <Leader><Tab> <esc>:'<,'>:Tab/
-vnoremap <Leader><Tab><space> :Tab/
-vnoremap <Leader><Tab>> :Tab/=><CR>
-vnoremap <Leader><Tab>= :Tab/=<CR>
-vnoremap <Leader><Tab>: :Tab/:\zs<CR>
+vnoremap F<space> :Tab/
+vnoremap F> :Tab/=><CR>
+vnoremap F= :Tab/=<CR>
+vnoremap F: :Tab/:\zs<CR>
 
 " surround selected text
 " https://www.reddit.com/r/vim/comments/25acm8/dear_amazing_vim_people_which_plugintrick_made/chftfel/?utm_content=permalink&utm_medium=front&utm_source=reddit&utm_name=vim

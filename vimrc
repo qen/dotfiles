@@ -329,17 +329,21 @@ nnoremap <Tab>q :bd!<CR>
 
 " window navigation uses Tab w
 nnoremap <Tab>wv :vsplit<CR>
+
 " cycle to window
 nnoremap <Tab>ww <C-w>w<CR>
+
 " close window
 " nnoremap <Tab>wq <C-w>q<CR>
 nnoremap <silent> <Tab>wq :call ConfirmQuit(0)<CR>
+
 " next window
 nnoremap <Tab>wl <C-w>l<CR>
+
 " prev window
 nnoremap <Tab>wh <C-w>h<CR>
 
-" search file to all open buffers
+" search files to all open buffers
 nnoremap <Tab>f :Buffers<CR>
 
 " code search in all opened files
@@ -379,7 +383,7 @@ nnoremap <Leader>h :History<CR>
 nnoremap <Leader>FF :Files<CR>
 
 " - find files in cwd that is similar to the file extension for the current open buffer
-" nnoremap <Leader>Ff :Files<CR>
+nnoremap <Leader>Ff :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
 
 " - the directory of the current opened file
 nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>

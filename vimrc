@@ -319,21 +319,43 @@ endfunction
 " xnoremap <leader>C <esc>:'<,'>call CodeSearchAgRange()<CR>
 vnoremap <leader>C :call CodeSearchAgRange()<CR>
 
-function! CodeReplace(target, replace)
-  " :s%/a:target/a:replace/g
-  execute ':%s/'.a:target.'/'.a:replace.'/g'
-endfunction
-command! -nargs=* Replace call CodeReplace( <f-args> )
+function! CodeReplaceSelection(range)
+  call inputsave()
+  let target = input('Find: ')
+  call inputrestore()
+  if target == ''
+    return ''
+  endif
 
-function! CodeReplaceRange() range
+  call inputsave()
+  let replace = input('Replace: ')
+  call inputrestore()
+  if replace == ''
+    return ''
+  endif
+
+  " :s%/a:target/a:replace/g
+  if a:range
+    execute ":'<,'>s/".target.'/'.replace."/g"
+  else
+    execute ":%s/".target.'/'.replace."/g"
+  endif
+
+endfunction
+" command! -nargs=* Replace call CodeReplaceSelection( <f-args> )
+" command! Replace call CodeReplaceSelection()
+vnoremap R :call CodeReplaceSelection(1)<CR>
+nnoremap R :call CodeReplaceSelection(0)<CR>
+
+function! CodeReplaceTargetRange() range
   let target = s:get_visual_selection()
   call inputsave()
   let replace = input('Replace >>'.target.'<<  with: ')
   call inputrestore()
-  call CodeReplace( target , replace )
+  " call CodeReplace( target , replace )
+  execute ':%s/'.target.'/'.replace."/g"
 endfunction
-vnoremap <c-r> :call CodeReplaceRange()<CR>
-
+vnoremap <c-r> :call CodeReplaceTargetRange()<CR>
 
 " =====================
 " Keyboard Setup

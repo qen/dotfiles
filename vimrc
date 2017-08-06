@@ -226,6 +226,9 @@ function! ConfirmDelete()
     :call delete(expand('%')) | bdelete!
   endif
 endfu
+" delete file with confirmation
+" to produce ^? special character, type ctrl-v first then the special character
+nnoremap <leader> :call ConfirmDelete()<CR>
 
 " save with auto create directory
 " https://stackoverflow.com/a/4294176/3288608
@@ -335,7 +338,7 @@ function! CodeReplaceSelection(range)
   endif
 
   " :s%/a:target/a:replace/g
-  if a:range
+  if a:range == 1
     execute ":'<,'>s/".target.'/'.replace."/g"
   else
     execute ":%s/".target.'/'.replace."/g"
@@ -356,6 +359,36 @@ function! CodeReplaceTargetRange() range
   execute ':%s/'.target.'/'.replace."/g"
 endfunction
 vnoremap <c-r> :call CodeReplaceTargetRange()<CR>
+
+function! OpenDirectory()
+  call inputsave()
+  let dir = input("Open Directory: ".getcwd()."/", expand('%:h'), "dir")
+  call inputrestore()
+  call system("open '". dir ."'")
+endfunction
+" open of current working directory
+nnoremap <F5> :silent call OpenDirectory()<CR>
+
+function! SaveAs()
+  call inputsave()
+  let file = input("Save as file: ".getcwd()."/", expand('%:h'), "dir")
+  call inputrestore()
+  execute ':w '.file
+  execute ':e '.file
+endfunction
+command! SaveAs call SaveAs()
+" nnoremap <F2> :silent call SaveAs()<CR>
+
+function! RenameFile()
+  let current_file = expand('%')
+  call inputsave()
+  let file = input("Rename file as: ".getcwd()."/", current_file, "dir")
+  call inputrestore()
+  execute ':w '.file
+  call delete(current_file) | bdelete!
+  execute ':e '.file
+endfunction
+command! RenameFile call RenameFile()
 
 " =====================
 " Keyboard Setup
@@ -419,6 +452,8 @@ nnoremap <Leader>g :GFiles<CR>
 
 nnoremap <Leader>h :History<CR>
 
+" nnoremap <Leader>k :Ag <C-R><C-W><CR>
+
 " search files
 
 " - current working direcotry, the global search
@@ -441,9 +476,6 @@ nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
 
 " - app
 nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
-
-" nnoremap <Leader>g :GFiles<CR>
-" nnoremap <Leader>k :Ag <C-R><C-W><CR>
 
 " code search in current open file
 nnoremap <Leader>c :BLines<CR>
@@ -472,9 +504,6 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 " inoremap <c-@><c-@> <c-x><c-o><c-p>
 set omnifunc=syntaxcomplete#Complete
 
-" F5 opens current buffer's folder in Finder
-nnoremap <F5> :silent call system("open '". expand('%:p:h') ."'")<CR>
-
 " code formating, using Tabularize, must have an existing selected text
 " http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
 vnoremap F<space> :Tab/
@@ -497,10 +526,6 @@ vnoremap <silent> <leader><leader> :call NERDComment('v', 'Toggle')<CR>
 
 " unbind shift-k, its annoying
 map <S-k> <Nop>
-
-" delete file with confirmation
-" to produce ^? special character, type ctrl-v first then the special character
-nnoremap <leader> :call ConfirmDelete()<CR>
 
 " save file
 noremap <leader>w :w<CR>

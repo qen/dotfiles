@@ -121,6 +121,8 @@ let g:syntastic_check_on_wq = 0
 
 Plugin 'jiangmiao/auto-pairs'
 
+Plugin 'wincent/scalpel'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 
@@ -143,12 +145,14 @@ set ruler
 set relativenumber
 set number
 set mouse=a
+
 set autoindent                  " always set autoindenting on
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set smarttab
 set expandtab
+
 set hlsearch
 set clipboard=unnamed
 set cmdheight=1
@@ -161,7 +165,6 @@ set confirm
 " Split settings
 set splitbelow
 set splitright
-set pastetoggle=<F3>
 
 set swapfile
 set dir=~/.vim/tmp
@@ -323,11 +326,13 @@ function! CodeReplaceSelection(range)
     return ''
   endif
 
+  echo target
+
   " :s%/a:target/a:replace/g
   if a:range == 1
-    execute ":'<,'>s/".target.'/'.replace."/g"
+    execute ":'<,'>Scalpel/\v<".target.'>/'.replace."/g"
   else
-    execute ":%s/".target.'/'.replace."/g"
+    execute ":%s/\v<".target.'>/'.replace."/g"
   endif
 endfunction
 " command! -nargs=* Replace call CodeReplaceSelection( <f-args> )
@@ -335,15 +340,9 @@ endfunction
 vnoremap R :call CodeReplaceSelection(1)<CR>
 nnoremap R :call CodeReplaceSelection(0)<CR>
 
-function! CodeReplaceTargetRange() range
-  let target = s:get_visual_selection()
-  call inputsave()
-  let replace = input('Replace >>'.target.'<<  with: ')
-  call inputrestore()
-  " call CodeReplace( target , replace )
-  execute ':%s/'.target.'/'.replace."/g"
-endfunction
-vnoremap <c-r> :call CodeReplaceTargetRange()<CR>
+" =====================
+" Function Command
+" =====================
 
 function! SaveAs()
   call inputsave()
@@ -380,8 +379,13 @@ endfunction
 " open of current working directory
 nnoremap <F4> :silent call OpenDirectory()<CR>
 
+" scalpel find and replace word
+nmap <F5> <Plug>(Scalpel)
+
+set pastetoggle=<F6>
+
 " Copy full path filename with path to clipboard
-nmap <F5> :let @*=expand("%:p")<CR>
+nmap <F7> :let @*=expand("%:p")<CR>
 
 " =====================
 " Keyboard Setup

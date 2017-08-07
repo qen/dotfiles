@@ -343,7 +343,6 @@ function! CodeReplaceSelection(range)
   else
     execute ":%s/".target.'/'.replace."/g"
   endif
-
 endfunction
 " command! -nargs=* Replace call CodeReplaceSelection( <f-args> )
 " command! Replace call CodeReplaceSelection()
@@ -360,6 +359,32 @@ function! CodeReplaceTargetRange() range
 endfunction
 vnoremap <c-r> :call CodeReplaceTargetRange()<CR>
 
+function! SaveAs()
+  call inputsave()
+  let file = input("Save as file: ".getcwd()."/", expand('%:h'), "dir")
+  call inputrestore()
+  if file != ''
+    execute ':w '.file
+    execute ':e '.file
+  endif
+endfunction
+command! SaveAs call SaveAs()
+nnoremap <F2> :silent call SaveAs()<CR>
+
+function! RenameFile()
+  let current_file = expand('%')
+  call inputsave()
+  let file = input("Rename file as: ".getcwd()."/", current_file, "dir")
+  call inputrestore()
+  if file != ''
+    execute ':w '.file
+    call delete(current_file) | bdelete!
+    execute ':e '.file
+  endif
+endfunction
+command! RenameFile call RenameFile()
+nnoremap <F3> :silent call RenameFile()<CR>
+
 function! OpenDirectory()
   call inputsave()
   let dir = input("Open Directory: ".getcwd()."/", expand('%:h'), "dir")
@@ -367,28 +392,10 @@ function! OpenDirectory()
   call system("open '". dir ."'")
 endfunction
 " open of current working directory
-nnoremap <F5> :silent call OpenDirectory()<CR>
+nnoremap <F4> :silent call OpenDirectory()<CR>
 
-function! SaveAs()
-  call inputsave()
-  let file = input("Save as file: ".getcwd()."/", expand('%:h'), "dir")
-  call inputrestore()
-  execute ':w '.file
-  execute ':e '.file
-endfunction
-command! SaveAs call SaveAs()
-" nnoremap <F2> :silent call SaveAs()<CR>
-
-function! RenameFile()
-  let current_file = expand('%')
-  call inputsave()
-  let file = input("Rename file as: ".getcwd()."/", current_file, "dir")
-  call inputrestore()
-  execute ':w '.file
-  call delete(current_file) | bdelete!
-  execute ':e '.file
-endfunction
-command! RenameFile call RenameFile()
+" Copy full path filename with path to clipboard
+nmap <F5> :let @*=expand("%:p")<CR>
 
 " =====================
 " Keyboard Setup
@@ -529,8 +536,5 @@ map <S-k> <Nop>
 
 " save file
 noremap <leader>w :w<CR>
-
-" Copy full path filename with path to clipboard
-nmap <F2> :let @*=expand("%:p")<CR>
 
 

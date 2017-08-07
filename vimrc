@@ -119,7 +119,7 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-" Plugin 'jiangmiao/auto-pairs'
+Plugin 'jiangmiao/auto-pairs'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -254,7 +254,7 @@ function! CloseRubyEndToken()
   let stuff_without_do_too = '\s*\(if\|unless\|begin\|case\)'
   let with_do = 'do\s*\(|\(,\|\s\|\w\)*|\s*\)\?$'
 
-  if match(current_line, braces_at_end) >= 0
+  if match(current_line, braces_at_end) <= virtcol('.') &&  match(current_line, braces_at_end) > 0
     return "\<CR>}\<C-O>O"
   elseif match(current_line, stuff_without_do_too) >= 0
     return "\<CR>end\<C-O>O"
@@ -267,20 +267,6 @@ function! CloseRubyEndToken()
   endif
 endfunction
 autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
-
-function! CloseCurlyBracketsToken()
-  let current_line = getline( '.' )
-  let braces_at_end = '{\s*$'
-  " match(getline( '.' ), '{\s*$')
-  if match(current_line, braces_at_end) <= virtcol('.') && match(current_line, braces_at_end) > 0
-    return "\<CR>}\<C-O>O"
-  else
-    return "\<CR>"
-  endif
-endfunction
-autocmd FileType scss,css,javascript,javascript.jsx,slim,haml imap <buffer> <CR> <C-R>=CloseCurlyBracketsToken()<CR>
-
-" inoremap <CR> <C-R>=CloseRubyEndToken()<CR>
 
 " https://stackoverflow.com/a/6271254/3288608
 function! s:get_visual_selection()
@@ -306,7 +292,7 @@ function! CodeSearchRange(buffer_lines) range
   if (a:buffer_lines)
     call fzf#vim#buffer_lines( s:get_visual_selection() )
   else
-    call fzf#vim#lines (s:get_visual_selection() )
+    call fzf#vim#lines( s:get_visual_selection() )
   endif
 endfunction
 " code search selected text on current file
@@ -536,5 +522,4 @@ map <S-k> <Nop>
 
 " save file
 noremap <leader>w :w<CR>
-
 

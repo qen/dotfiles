@@ -311,34 +311,44 @@ endfunction
 " xnoremap <leader>C <esc>:'<,'>call CodeSearchAgRange()<CR>
 vnoremap <leader>C :call CodeSearchAgRange()<CR>
 
-function! CodeReplaceSelection(range)
-  call inputsave()
-  let target = input('Find: ')
-  call inputrestore()
+function! CodeReplaceSelection(range, target) range
+  let target = a:target
+
+  if a:target == 'current_word'
+    let target = expand('<cword>')
+  endif
+
+  if a:target == 'selected_word'
+    let target = s:get_visual_selection()
+  endif
+
+  if target == ''
+    call inputsave()
+    let target = input('Find: ')
+    call inputrestore()
+  endif
+
   if target == ''
     return ''
   endif
 
   call inputsave()
-  let replace = input('Replace: ')
+  let replace = input('Replace '.target.' : ')
   call inputrestore()
   if replace == ''
     return ''
   endif
 
-  echo target
-
-  " :s%/a:target/a:replace/g
   if a:range == 1
-    execute ":'<,'>Scalpel/\v<".target.'>/'.replace."/g"
+    execute ":'<,'>Scalpel/\\\v<".target.'>/'.replace."/"
   else
-    execute ":%s/\v<".target.'>/'.replace."/g"
+    execute ":Scalpel/\\\v<".target.'>/'.replace."/"
   endif
 endfunction
-" command! -nargs=* Replace call CodeReplaceSelection( <f-args> )
-" command! Replace call CodeReplaceSelection()
-vnoremap R :call CodeReplaceSelection(1)<CR>
-nnoremap R :call CodeReplaceSelection(0)<CR>
+vnoremap R :call CodeReplaceSelection(1, '')<CR>
+nnoremap R :call CodeReplaceSelection(0, '')<CR>
+nnoremap <c-r> :call CodeReplaceSelection(0, 'current_word')<CR>
+vnoremap <c-r> :call CodeReplaceSelection(0, 'selected_word')<CR>
 
 " =====================
 " Function Command

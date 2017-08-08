@@ -492,8 +492,8 @@ nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 nnoremap <Leader>c :BLines<CR>
 
 " Movement in insert mode
-" inoremap <C-h> <c-o>h
-" inoremap <C-l> <c-o>l
+" inoremap <C-h> <c-o><Left>
+" inoremap <C-l> <c-o><Right>
 " inoremap <C-j> <c-o>j
 " inoremap <C-k> <c-o>k
 " move next word, on insert mode type ctrl-v alt-f
@@ -502,10 +502,9 @@ inoremap f <s-right>
 inoremap b <s-left>
 
 " search forward to a character, in edit mode
-inoremap <C-f> <C-o>f
-
+inoremap <C-f>l <C-o>f
 " search backward to a character, in edit mode
-inoremap <C-b> <C-o>F
+inoremap <C-f>h <C-o>F
 
 " center current active line in edit mode
 inoremap <C-z> <C-o>zz

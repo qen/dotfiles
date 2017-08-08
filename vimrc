@@ -230,7 +230,7 @@ function! ConfirmDelete()
   endif
 endfu
 " delete file with confirmation
-" to produce ^? special character, type ctrl-v first then the special character
+" to produce ^? special character, type ctrl-v first then the special character delete
 nnoremap <leader> :call ConfirmDelete()<CR>
 
 " save with auto create directory
@@ -441,6 +441,10 @@ cnoremap <C-k> <Up>
 cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
+" move next word, on insert mode type ctrl-v alt-f
+cnoremap f <s-right>
+" move previous word, on insert mode type ctrl-v alt-b
+cnoremap b <s-left>
 
 nnoremap { 10kzz
 nnoremap <C-k> 10kzz
@@ -488,16 +492,20 @@ nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 nnoremap <Leader>c :BLines<CR>
 
 " Movement in insert mode
-inoremap <C-h> <C-o>h
-inoremap <C-l> <C-o>a
-inoremap <C-j> <C-o>j
-inoremap <C-k> <C-o>k
+" inoremap <C-h> <c-o>h
+" inoremap <C-l> <c-o>l
+" inoremap <C-j> <c-o>j
+" inoremap <C-k> <c-o>k
+" move next word, on insert mode type ctrl-v alt-f
+inoremap f <s-right>
+" move previous word, on insert mode type ctrl-v alt-b
+inoremap b <s-left>
 
-" search forward, in edit mode
-inoremap <C-f>l <C-o>f
+" search forward to a character, in edit mode
+inoremap <C-f> <C-o>f
 
-" search backward, in edit mode
-inoremap <C-f>h <C-o>F
+" search backward to a character, in edit mode
+inoremap <C-b> <C-o>F
 
 " center current active line in edit mode
 inoremap <C-z> <C-o>zz

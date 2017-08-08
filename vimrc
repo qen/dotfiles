@@ -113,11 +113,10 @@ set timeout timeoutlen=3000 ttimeoutlen=10
 " set statusline+=%#warningmsg#
 " set statusline+=%{SyntasticStatuslineFlag()}
 " set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
 
 Plugin 'jiangmiao/auto-pairs'
 
@@ -305,11 +304,24 @@ vnoremap <Tab>c :call CodeSearchRange(0)<CR>
 
 " code search to all files limited to the current buffer file extension,
 " search query is the selected text
-function! CodeSearchAgRange() range
-  call fzf#vim#grep('ag --nogroup --column -G "\.('. expand('%:e') .')$" --color '.s:get_visual_selection(), 1)
+function! CodeSearchAgRange(visual) range
+  let needle = ''
+
+  if a:visual == '0'
+    call inputsave()
+    let needle = input('Search: ')
+    call inputrestore()
+  else
+    let needle = s:get_visual_selection()
+  endif
+
+  if needle != ''
+    call fzf#vim#grep('ag --nogroup --column -G "\.('. expand('%:e') .')$" --color '.needle, 1)
+  endif
+
 endfunction
-" xnoremap <leader>C <esc>:'<,'>call CodeSearchAgRange()<CR>
-vnoremap <leader>C :call CodeSearchAgRange()<CR>
+vnoremap <leader>C :call CodeSearchAgRange(1)<CR>
+nnoremap <leader>C :call CodeSearchAgRange(0)<CR>
 
 function! CodeReplaceSelection(range, target) range
   let target = a:target
@@ -356,7 +368,7 @@ vnoremap <leader>R :call CodeReplaceSelection(0, 'selected_word')<CR>
 
 function! SaveAs()
   call inputsave()
-  let file = input("Save as file: ".getcwd()."/", expand('%:h'), "dir")
+  let file = input("Save as file: ".getcwd()."/", expand('%:h').'/', "dir")
   call inputrestore()
   if file != ''
     execute ':w '.file

@@ -347,8 +347,8 @@ function! CodeReplaceSelection(range, target) range
 endfunction
 vnoremap R :call CodeReplaceSelection(1, '')<CR>
 nnoremap R :call CodeReplaceSelection(0, '')<CR>
-nnoremap <c-r> :call CodeReplaceSelection(0, 'current_word')<CR>
-vnoremap <c-r> :call CodeReplaceSelection(0, 'selected_word')<CR>
+nnoremap <leader>R :call CodeReplaceSelection(0, 'current_word')<CR>
+vnoremap <leader>R :call CodeReplaceSelection(0, 'selected_word')<CR>
 
 " =====================
 " Function Command

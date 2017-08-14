@@ -2,8 +2,8 @@ set nocompatible              " be iMproved, required
 filetype off                  " required
 
 " remap ESC twice
-inoremap jk <ESC><ESC>
-vnoremap jk <ESC><ESC>
+" inoremap jk <ESC><ESC>
+" vnoremap jk <ESC><ESC>
 
 " =====================
 " Plugins
@@ -109,7 +109,7 @@ let g:NERDCreateDefaultMappings = 0
 
 Plugin 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
-set timeout timeoutlen=1000 ttimeoutlen=100
+set timeout timeoutlen=3000 ttimeoutlen=100
 
 " NOT SURE IF I SHOULD ENABLE THIS,
 " doing so would add more plugin per language
@@ -150,7 +150,7 @@ set incsearch                   " do incremental searching
 set ruler
 set relativenumber
 set number
-set mouse=a
+" set mouse=a
 
 set autoindent                  " always set autoindenting on
 set tabstop=2
@@ -549,15 +549,19 @@ cnoremap <C-k> <Up>
 cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
-" move next word, on insert mode type ctrl-v alt-f
+" move next word, on insert mode type ctrl-v alt-f,
+" do not map this on insert mode
 cnoremap f <s-right>
 " move previous word, on insert mode type ctrl-v alt-b
+" do not map this on insert mode
 cnoremap b <s-left>
 
 nnoremap { 10kzz
 nnoremap <C-k> 10kzz
+vnoremap <C-k> 10kzz
 nnoremap } 10jzz
 nnoremap <C-j> 10jzz
+vnoremap <C-j> 10jzz
 
 nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <Leader>E :edit <space>
@@ -599,15 +603,11 @@ inoremap <C-h> <c-o>h
 inoremap <C-l> <c-o>l
 inoremap <C-j> <c-o>j
 inoremap <C-k> <c-o>k
-" move next word, on insert mode type ctrl-v alt-f
-inoremap f <s-right>
-" move previous word, on insert mode type ctrl-v alt-b
-inoremap b <s-left>
 
 " search forward to a character, in edit mode
-inoremap <C-f>l <C-o>f
+inoremap <C-f> <C-o>f
 " search backward to a character, in edit mode
-inoremap <C-f>h <C-o>F
+inoremap <C-b> <C-o>F
 
 " center current active line in edit mode
 inoremap <C-z> <C-o>zz

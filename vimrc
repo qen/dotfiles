@@ -1,6 +1,10 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
+" remap ESC twice
+inoremap jk <ESC><ESC>
+vnoremap jk <ESC><ESC>
+
 " =====================
 " Plugins
 " =====================
@@ -105,8 +109,7 @@ let g:NERDCreateDefaultMappings = 0
 
 Plugin 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
-" https://github.com/tpope/vim-surround/issues/117#issuecomment-272007689
-set timeout timeoutlen=3000 ttimeoutlen=10
+set timeout timeoutlen=1000 ttimeoutlen=100
 
 " NOT SURE IF I SHOULD ENABLE THIS,
 " doing so would add more plugin per language
@@ -287,7 +290,7 @@ endfunction
 autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
 
 " https://stackoverflow.com/a/6271254/3288608
-function! s:get_visual_selection()
+function! GetVisualSelection()
   " Why is this not a built-in Vim script function?!
   let [lnum1, col1] = getpos("'<")[1:2]
   let [lnum2, col2] = getpos("'>")[1:2]
@@ -300,32 +303,21 @@ endfunction
 " search files of current selected text
 " https://github.com/junegunn/fzf/wiki/Examples-(vim)#using-fzfwrap-function
 " function! FileSearchRange() range
-"  call fzf#run( fzf#wrap( { 'options': '-q' . s:get_visual_selection() } ) )
+"  call fzf#run( fzf#wrap( { 'options': '-q' . GetVisualSelection() } ) )
 " endfunction
 " vnoremap <leader>f :call FileSearchRange()<CR>
 
-" code search current buffer or all open buffer of currently selected text
-function! CodeSearchRange(buffer_lines) range
-  if (a:buffer_lines)
-    call fzf#vim#buffer_lines( s:get_visual_selection() )
-  else
-    call fzf#vim#lines( s:get_visual_selection() )
-  endif
-endfunction
-" code search selected text on current file
-vnoremap <space><space> :call CodeSearchRange(1)<CR>
-
 " code search to all files limited to the current buffer file extension,
 " search query is the selected text
-function! CodeSearchAgRange(visual) range
+function! CodeSearchSimilarFile(visual) range
   let needle = ''
 
   if a:visual == '0'
     call inputsave()
-    let needle = input('Search: ',  expand('<cword>'), 'var')
+    let needle = input('Search: ',  expand('<cword>'), 'tag')
     call inputrestore()
   else
-    let needle = s:get_visual_selection()
+    let needle = GetVisualSelection()
   endif
 
   if needle != ''
@@ -333,10 +325,6 @@ function! CodeSearchAgRange(visual) range
   endif
 
 endfunction
-" code search highlighted text, all project files with similar extensions
-vnoremap <leader>C :call CodeSearchAgRange(1)<CR>
-" code search all project files with similar extensions
-nnoremap <leader>C :call CodeSearchAgRange(0)<CR>
 
 function! CodeReplaceSelection(range, target) range
   let target = a:target
@@ -346,7 +334,7 @@ function! CodeReplaceSelection(range, target) range
   endif
 
   if a:target == 'selected_word'
-    let target = s:get_visual_selection()
+    let target = GetVisualSelection()
   endif
 
   if target == ''
@@ -475,12 +463,14 @@ nnoremap <Tab>q :bd!<CR>
 " open files
 nnoremap <Tab>o :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <Tab>O :edit <space>
+nnoremap <Tab>F :Files<CR>
+nnoremap <Tab>G :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
 nnoremap <Tab>f :call fzf#vim#filesuggest()<CR>
 
 " - find files in cwd that is similar to the file extension for the current open buffer
-nnoremap <Tab>d :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
+" nnoremap <Tab>d :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
 
 " - models
 nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
@@ -492,23 +482,41 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
 
 " - app, config, db, lib
-let g:projectfolders = [ 'app', 'config', 'db', 'lib' ]
-nnoremap <Tab>a :call fzf#vim#filefolders(g:projectfolders)<CR>
+let g:projectdirectories = [ 'app', 'config', 'db', 'lib', 'spec', 'test' ]
+nnoremap <Tab>p :call fzf#vim#filefolders(g:projectdirectories)<CR>
 
 " find file selected text in specified folders
 " or the current word if no selected text
 function! FileSearchRange(visual) range
-  let query =  a:visual == '0' ? expand('<cword>') : s:get_visual_selection()
-  call fzf#vim#filefolders(g:projectfolders, query )
+  let query =  a:visual == '0' ? expand('<cword>') : GetVisualSelection()
+  call fzf#vim#filefolders(g:projectdirectories, query )
 endfunction
 vnoremap <leader>f :call FileSearchRange(1)<CR>
 nnoremap <leader>f :call FileSearchRange(0)<CR>
 
 " code search selected text on all buffers
-vnoremap <Tab><space> :call CodeSearchRange(0)<CR>
+vnoremap <Tab><space> :call fzf#vim#lines( GetVisualSelection() )<CR>
 
 " code search in all opened files
 nnoremap <Tab><space> :Lines<CR>
+
+" --------------------
+"  Code Search using space as prefix
+" --------------------
+
+" code search in current open file
+nnoremap <space><Leader> :Ag <c-r><c-w>
+
+nnoremap <space><space> :BLines<CR>
+
+" code search selected text on current file
+vnoremap <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
+
+" code search highlighted text, all project files with similar extensions
+vnoremap <space>k :call CodeSearchSimilarFile(1)<CR>
+
+" code search all project files with similar extensions
+nnoremap <space>k :call CodeSearchSimilarFile(0)<CR>
 
 " --------------------
 " Tab w window navigation stuff
@@ -530,7 +538,6 @@ nnoremap <Tab>wl <C-w>l<CR>
 nnoremap <Tab>wh <C-w>h<CR>
 
 " --------------------
-
 
 " run a command
 nnoremap <Leader><CR> :!
@@ -558,18 +565,16 @@ nnoremap <Leader>E :edit <space>
 " Custom fzf mappings
 
 " code search on current working directory
-nnoremap <Leader>a :Ag<space>
+" nnoremap <Leader>a :Ag <c-r><c-w>
 
-nnoremap <Leader>g :GFiles<CR>
+" nnoremap <Leader>g :GFiles<CR>
 
-nnoremap <Leader>h :History<CR>
-
-" nnoremap <Leader>k :Ag <C-R><C-W><CR>
+" nnoremap <Leader>h :History<CR>
 
 " search files
 
 " - current working direcotry, the global search
-nnoremap <Leader>d :Files<CR>
+" nnoremap <Leader>d :Files<CR>
 
 " " - find files in cwd that is similar to the file extension for the current open buffer
 " nnoremap <Leader>Ff :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
@@ -588,10 +593,6 @@ nnoremap <Leader>d :Files<CR>
 
 " " - app
 " nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
-
-" code search in current open file
-nnoremap <Leader>c :BLines<CR>
-nnoremap <space><space> :BLines<CR>
 
 " Movement in insert mode
 inoremap <C-h> <c-o>h

@@ -299,11 +299,10 @@ endfunction
 
 " search files of current selected text
 " https://github.com/junegunn/fzf/wiki/Examples-(vim)#using-fzfwrap-function
-function! FileSearchRange() range
-  call fzf#run( fzf#wrap( { 'options': '-q' . s:get_visual_selection() } ) )
-endfunction
-" xnoremap <leader>f <esc>:'<,'>call FileSearchRange()<CR>
-vnoremap <leader>f :call FileSearchRange()<CR>
+" function! FileSearchRange() range
+"  call fzf#run( fzf#wrap( { 'options': '-q' . s:get_visual_selection() } ) )
+" endfunction
+" vnoremap <leader>f :call FileSearchRange()<CR>
 
 " code search current buffer or all open buffer of currently selected text
 function! CodeSearchRange(buffer_lines) range
@@ -480,9 +479,6 @@ nnoremap <Tab>O :edit <space>
 " search files to all open buffers, and current files in the open buffer directory
 nnoremap <Tab>f :call fzf#vim#filesuggest()<CR>
 
-" - current working direcotry, the global search
-" nnoremap <Tab>d :Files<CR>
-
 " - find files in cwd that is similar to the file extension for the current open buffer
 nnoremap <Tab>d :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
 
@@ -495,8 +491,18 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 " - controllers
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
 
-" - app
-nnoremap <Tab>a :call fzf#vim#files('app')<CR>
+" - app, config, db, lib
+let g:projectfolders = [ 'app', 'config', 'db', 'lib' ]
+nnoremap <Tab>a :call fzf#vim#filefolders(g:projectfolders)<CR>
+
+" find file selected text in specified folders
+" or the current word if no selected text
+function! FileSearchRange(visual) range
+  let query =  a:visual == '0' ? expand('<cword>') : s:get_visual_selection()
+  call fzf#vim#filefolders(g:projectfolders, query )
+endfunction
+vnoremap <leader>f :call FileSearchRange(1)<CR>
+nnoremap <leader>f :call FileSearchRange(0)<CR>
 
 " code search selected text on all buffers
 vnoremap <Tab><space> :call CodeSearchRange(0)<CR>
@@ -562,8 +568,8 @@ nnoremap <Leader>h :History<CR>
 
 " search files
 
-" " - current working direcotry, the global search
-nnoremap <Leader>f :Files<CR>
+" - current working direcotry, the global search
+nnoremap <Leader>d :Files<CR>
 
 " " - find files in cwd that is similar to the file extension for the current open buffer
 " nnoremap <Leader>Ff :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>

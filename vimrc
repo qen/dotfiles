@@ -37,7 +37,8 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 
 " FZF
 Plugin 'junegunn/fzf'
-Plugin 'junegunn/fzf.vim'
+" Plugin 'junegunn/fzf.vim'
+Plugin 'qen/fzf.vim'
 
 Plugin 'pangloss/vim-javascript'
 
@@ -118,7 +119,10 @@ set timeout timeoutlen=3000 ttimeoutlen=10
 " let g:syntastic_check_on_open = 1
 " let g:syntastic_check_on_wq = 0
 
-Plugin 'jiangmiao/auto-pairs'
+" Plugin 'jiangmiao/auto-pairs'
+" http://vimawesome.com/plugin/auto-pairs-gentle
+" Plugin 'vim-scripts/auto-pairs-gentle'
+" let g:AutoPairsUseInsertedCount = 1
 
 Plugin 'wincent/scalpel'
 
@@ -195,6 +199,18 @@ set iskeyword=@,!,?,48-57,_,192-255,-
 " =====================
 " Scripts
 " =====================
+
+" let files = split(globpath('.', '**'), '\n')
+" fzf#run(s:wrap(a:name, , bang))
+" fzf#vim#file_lists('filelist', ['hello'])
+" function! Helloworld(name, list, ...)
+  " let [query, args] = (a:0 && type(a:1) == type('')) ? [a:1, a:000[1:]] : ['', a:000]
+  " echo a:name
+  " echo a:list
+  " echo query
+  " echo args
+" endfunction
+
 
 " remove trailing spaces
 autocmd BufWritePre * %s/\s\+$//e
@@ -298,9 +314,7 @@ function! CodeSearchRange(buffer_lines) range
   endif
 endfunction
 " code search selected text on current file
-vnoremap <leader>c :call CodeSearchRange(1)<CR>
-" code search selected text on all buffers
-vnoremap <Tab>c :call CodeSearchRange(0)<CR>
+vnoremap <space><space> :call CodeSearchRange(1)<CR>
 
 " code search to all files limited to the current buffer file extension,
 " search query is the selected text
@@ -309,7 +323,7 @@ function! CodeSearchAgRange(visual) range
 
   if a:visual == '0'
     call inputsave()
-    let needle = input('Search: ')
+    let needle = input('Search: ',  expand('<cword>'), 'var')
     call inputrestore()
   else
     let needle = s:get_visual_selection()
@@ -320,7 +334,9 @@ function! CodeSearchAgRange(visual) range
   endif
 
 endfunction
+" code search highlighted text, all project files with similar extensions
 vnoremap <leader>C :call CodeSearchAgRange(1)<CR>
+" code search all project files with similar extensions
 nnoremap <leader>C :call CodeSearchAgRange(0)<CR>
 
 function! CodeReplaceSelection(range, target) range
@@ -361,6 +377,37 @@ vnoremap R :call CodeReplaceSelection(1, '')<CR>
 nnoremap R :call CodeReplaceSelection(0, '')<CR>
 nnoremap <leader>R :call CodeReplaceSelection(0, 'current_word')<CR>
 vnoremap <leader>R :call CodeReplaceSelection(0, 'selected_word')<CR>
+
+
+" function! s:format_buffer(b)
+"   let name = bufname(a:b)
+"   let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
+"   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
+"           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
+"   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
+"   let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
+"   let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
+"   return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
+" endfunction
+" function! s:sort_buffers(...)
+"   let [b1, b2] = map(copy(a:000), 'get(g:fzf#vim#buffers, v:val, v:val)')
+"   " Using minus between a float and a number in a sort function causes an error
+"   return b1 > b2 ? 1 : -1
+" endfunction
+" function! Helloworld(...)
+"   let buflisted = filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") != "qf"')
+"   let bufs = map(sort(buflisted, 's:sort_buffers'), 's:format_buffer(v:val)')
+"
+"   " let [query, args] = (a:0 && type(a:1) == type('')) ?
+"         " \ [a:1, a:000[1:]] : ['', a:000]
+"
+"   echo bufs
+"   " return s:fzf('buffers', {
+"   " \ 'source':  reverse(bufs),
+"   " \ 'sink*':   s:function('s:bufopen'),
+"   " \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:q(query)
+"   " \}, args)
+" endfunction
 
 " =====================
 " Function Command
@@ -416,11 +463,50 @@ nmap <F7> :let @*=expand("%:p")<CR>
 " reload vimrc
 nnoremap <Leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
 
+" --------------------
+" Tab shortcut to operate on files
+" --------------------
+
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
 nnoremap <Tab><Tab> :b#<CR>
 nnoremap <Tab>q :bd!<CR>
+
+" open files
+nnoremap <Tab>o :edit <C-R>=fnamemodify(@%, ':h')<CR>/
+nnoremap <Tab>O :edit <space>
+
+" search files to all open buffers, and current files in the open buffer directory
+nnoremap <Tab>f :call fzf#vim#filesuggest()<CR>
+
+" - current working direcotry, the global search
+" nnoremap <Tab>d :Files<CR>
+
+" - find files in cwd that is similar to the file extension for the current open buffer
+nnoremap <Tab>d :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
+
+" - models
+nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
+
+" - views
+nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
+
+" - controllers
+nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
+
+" - app
+nnoremap <Tab>a :call fzf#vim#files('app')<CR>
+
+" code search selected text on all buffers
+vnoremap <Tab><space> :call CodeSearchRange(0)<CR>
+
+" code search in all opened files
+nnoremap <Tab><space> :Lines<CR>
+
+" --------------------
+" Tab w window navigation stuff
+" --------------------
 
 " window navigation uses Tab w
 nnoremap <Tab>wv :vsplit<CR>
@@ -429,7 +515,7 @@ nnoremap <Tab>wv :vsplit<CR>
 nnoremap <Tab>ww <C-w>w<CR>
 
 " close window
-nnoremap <silent> <Tab>wq :call ConfirmQuit(0)<CR>
+nnoremap <Tab>wq :silent call ConfirmQuit(0)<CR>
 
 " next window
 nnoremap <Tab>wl <C-w>l<CR>
@@ -437,11 +523,8 @@ nnoremap <Tab>wl <C-w>l<CR>
 " prev window
 nnoremap <Tab>wh <C-w>h<CR>
 
-" search files to all open buffers
-nnoremap <Tab>f :Buffers<CR>
+" --------------------
 
-" code search in all opened files
-nnoremap <Tab>c :Lines<CR>
 
 " run a command
 nnoremap <Leader><CR> :!
@@ -464,7 +547,7 @@ nnoremap } 10jzz
 nnoremap <C-j> 10jzz
 
 nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-nnoremap <Leader>E :edit
+nnoremap <Leader>E :edit <space>
 
 " Custom fzf mappings
 
@@ -479,35 +562,36 @@ nnoremap <Leader>h :History<CR>
 
 " search files
 
-" - current working direcotry, the global search
-nnoremap <Leader>FF :Files<CR>
+" " - current working direcotry, the global search
+nnoremap <Leader>f :Files<CR>
 
-" - find files in cwd that is similar to the file extension for the current open buffer
-nnoremap <Leader>fF :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
+" " - find files in cwd that is similar to the file extension for the current open buffer
+" nnoremap <Leader>Ff :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
 
-" - the directory of the current opened file
-nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>
+" " - the directory of the current opened file
+" nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>
 
-" - models
-nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
+" " - models
+" nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
 
-" - views
-nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
+" " - views
+" nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
 
-" - controllers
-nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
+" " - controllers
+" nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
 
-" - app
-nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
+" " - app
+" nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 
 " code search in current open file
 nnoremap <Leader>c :BLines<CR>
+nnoremap <space><space> :BLines<CR>
 
 " Movement in insert mode
-" inoremap <C-h> <c-o><Left>
-" inoremap <C-l> <c-o><Right>
-" inoremap <C-j> <c-o>j
-" inoremap <C-k> <c-o>k
+inoremap <C-h> <c-o>h
+inoremap <C-l> <c-o>l
+inoremap <C-j> <c-o>j
+inoremap <C-k> <c-o>k
 " move next word, on insert mode type ctrl-v alt-f
 inoremap f <s-right>
 " move previous word, on insert mode type ctrl-v alt-b

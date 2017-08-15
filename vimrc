@@ -199,21 +199,13 @@ set scrolloff=3
 " https://woss.name/articles/vim-iskeyword/
 set iskeyword=@,!,?,48-57,_,192-255,-
 
+" globpath wildignore
+" https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
+set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock
+
 " =====================
 " Scripts
 " =====================
-
-" let files = split(globpath('.', '**'), '\n')
-" fzf#run(s:wrap(a:name, , bang))
-" fzf#vim#file_lists('filelist', ['hello'])
-" function! Helloworld(name, list, ...)
-  " let [query, args] = (a:0 && type(a:1) == type('')) ? [a:1, a:000[1:]] : ['', a:000]
-  " echo a:name
-  " echo a:list
-  " echo query
-  " echo args
-" endfunction
-
 
 " remove trailing spaces
 autocmd BufWritePre * %s/\s\+$//e
@@ -323,11 +315,17 @@ function! CodeSearchSimilarFile(visual) range
   if needle != ''
     call fzf#vim#grep('ag --nogroup --column -G "\.('. expand('%:e') .')$" --color '.needle, 1)
   endif
-
 endfunction
 
 function! CodeReplaceSelection(range, target) range
   let target = a:target
+  let suffix = a:range == 1 ? '[in range]' : ''
+
+  if (a:range == 1)
+    echo GetVisualSelection()
+  else
+    echo "Find and Replace Text"
+  endif
 
   if a:target == 'current_word'
     let target = expand('<cword>')
@@ -339,7 +337,7 @@ function! CodeReplaceSelection(range, target) range
 
   if target == ''
     call inputsave()
-    let target = input('Find: ')
+    let target = input('Search'.suffix.': ', @0)
     call inputrestore()
   endif
 
@@ -348,7 +346,7 @@ function! CodeReplaceSelection(range, target) range
   endif
 
   call inputsave()
-  let replace = input('Replace '.target.' : ')
+  let replace = input('Replace'.suffix.' '.target.' : ')
   call inputrestore()
   if replace == ''
     return ''
@@ -360,41 +358,6 @@ function! CodeReplaceSelection(range, target) range
     execute ":Scalpel/\\\v<".target.'>/'.replace."/"
   endif
 endfunction
-vnoremap R :call CodeReplaceSelection(1, '')<CR>
-nnoremap R :call CodeReplaceSelection(0, '')<CR>
-nnoremap <leader>R :call CodeReplaceSelection(0, 'current_word')<CR>
-vnoremap <leader>R :call CodeReplaceSelection(0, 'selected_word')<CR>
-
-
-" function! s:format_buffer(b)
-"   let name = bufname(a:b)
-"   let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
-"   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
-"           \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
-"   let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
-"   let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
-"   let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
-"   return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
-" endfunction
-" function! s:sort_buffers(...)
-"   let [b1, b2] = map(copy(a:000), 'get(g:fzf#vim#buffers, v:val, v:val)')
-"   " Using minus between a float and a number in a sort function causes an error
-"   return b1 > b2 ? 1 : -1
-" endfunction
-" function! Helloworld(...)
-"   let buflisted = filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") != "qf"')
-"   let bufs = map(sort(buflisted, 's:sort_buffers'), 's:format_buffer(v:val)')
-"
-"   " let [query, args] = (a:0 && type(a:1) == type('')) ?
-"         " \ [a:1, a:000[1:]] : ['', a:000]
-"
-"   echo bufs
-"   " return s:fzf('buffers', {
-"   " \ 'source':  reverse(bufs),
-"   " \ 'sink*':   s:function('s:bufopen'),
-"   " \ 'options': '+m -x --tiebreak=index --header-lines=1 --ansi -d "\t" -n 2,1..2 --prompt="Buf> "'.s:q(query)
-"   " \}, args)
-" endfunction
 
 " =====================
 " Function Command
@@ -448,7 +411,7 @@ nmap <F7> :let @*=expand("%:p")<CR>
 " =====================
 
 " reload vimrc
-nnoremap <Leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
+nnoremap <Leader>R :so $MYVIMRC<CR>:nohlsearch<CR>
 
 " --------------------
 " Tab shortcut to operate on files
@@ -461,13 +424,17 @@ nnoremap <Tab><Tab> :b#<CR>
 nnoremap <Tab>q :bd!<CR>
 
 " open files
-nnoremap <Tab>o :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-nnoremap <Tab>O :edit <space>
-nnoremap <Tab>F :Files<CR>
-nnoremap <Tab>G :GFiles<CR>
+" nnoremap <Tab>o :edit <C-R>=fnamemodify(@%, ':h')<CR>/
+" nnoremap <Tab>O :edit <space>
+nnoremap <Tab>f :Files<CR>
+nnoremap <Tab>g :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-nnoremap <Tab>f :call fzf#vim#filesuggest()<CR>
+nnoremap <Tab>o :call fzf#vim#filesuggest()<CR>
+
+" - app, config, db, lib
+let g:projectdirectories = [ 'app', 'config', 'db', 'lib', 'spec', 'test' ]
+nnoremap <Tab>p :call fzf#vim#filefolders(g:projectdirectories)<CR>
 
 " - find files in cwd that is similar to the file extension for the current open buffer
 " nnoremap <Tab>d :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
@@ -480,10 +447,6 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 
 " - controllers
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
-
-" - app, config, db, lib
-let g:projectdirectories = [ 'app', 'config', 'db', 'lib', 'spec', 'test' ]
-nnoremap <Tab>p :call fzf#vim#filefolders(g:projectdirectories)<CR>
 
 " find file selected text in specified folders
 " or the current word if no selected text
@@ -517,6 +480,22 @@ vnoremap <space>k :call CodeSearchSimilarFile(1)<CR>
 
 " code search all project files with similar extensions
 nnoremap <space>k :call CodeSearchSimilarFile(0)<CR>
+
+" --------------------
+"  Find and Replace
+" --------------------
+
+" replace text found in current buffer
+nnoremap R :call CodeReplaceSelection(0, '')<CR>
+
+" replace text found in selected text range
+vnoremap R :call CodeReplaceSelection(1, '')<CR>
+
+" replace current word found in current buffer
+nnoremap <leader>r :call CodeReplaceSelection(0, 'current_word')<CR>
+
+" replace selected text found in current buffer
+vnoremap <leader>r :call CodeReplaceSelection(0, 'selected_word')<CR>
 
 " --------------------
 " Tab w window navigation stuff
@@ -623,7 +602,7 @@ set omnifunc=syntaxcomplete#Complete
 
 " code formating, using Tabularize, must have an existing selected text
 " http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
-vnoremap F<space> :Tab/
+vnoremap FF :Tab/
 vnoremap F> :Tab/=><CR>
 vnoremap F= :Tab/=<CR>
 vnoremap F: :Tab/:\zs<CR>

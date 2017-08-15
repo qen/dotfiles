@@ -468,8 +468,6 @@ nnoremap <Tab><space> :Lines<CR>
 " --------------------
 
 " code search in current open file
-nnoremap <space><Leader> :Ag <c-r><c-w>
-
 nnoremap <space><space> :BLines<CR>
 
 " code search selected text on current file
@@ -480,6 +478,12 @@ vnoremap <space>k :call CodeSearchSimilarFile(1)<CR>
 
 " code search all project files with similar extensions
 nnoremap <space>k :call CodeSearchSimilarFile(0)<CR>
+
+" code search on current word to all files in current directory
+nnoremap <space><Leader> :Ag <c-r><c-w>
+
+" code search on selected to all files in current directory
+vnoremap <space><Leader> :call fzf#vim#ag(GetVisualSelection())<CR>
 
 " --------------------
 "  Find and Replace

@@ -107,10 +107,9 @@ set timeout timeoutlen=3000 ttimeoutlen=100
 " let g:syntastic_check_on_open = 1
 " let g:syntastic_check_on_wq = 0
 
-" Plugin 'jiangmiao/auto-pairs'
-" http://vimawesome.com/plugin/auto-pairs-gentle
-" Plugin 'vim-scripts/auto-pairs-gentle'
-" let g:AutoPairsUseInsertedCount = 1
+Plugin 'jiangmiao/auto-pairs'
+
+Plugin 'tpope/vim-endwise'
 
 Plugin 'wincent/scalpel'
 
@@ -246,29 +245,6 @@ augroup BWCCreateDir
   autocmd!
   autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
 augroup END
-
-" ruby auto complete
-" https://github.com/vim-ruby/vim-ruby/wiki/VimRubySupport
-function! CloseRubyEndToken()
-  let current_line = getline( '.' )
-  let braces_at_end = '{\s*\(|\(,\|\s\|\w\)*|\s*\)\?$'
-  let stuff_without_do = '^\s*\(class\|if\|unless\|begin\|case\|for\|module\|while\|until\|def\)'
-  let stuff_without_do_too = '\s*\(if\|unless\|begin\|case\)'
-  let with_do = 'do\s*\(|\(,\|\s\|\w\)*|\s*\)\?$'
-
-  if match(current_line, braces_at_end) <= virtcol('.') &&  match(current_line, braces_at_end) > 0
-    return "\<CR>}\<C-O>O"
-  elseif match(current_line, stuff_without_do_too) >= 0
-    return "\<CR>end\<C-O>O"
-  elseif match(current_line, stuff_without_do) >= 0
-    return "\<CR>end\<C-O>O"
-  elseif match(current_line, with_do) >= 0
-    return "\<CR>end\<C-O>O"
-  else
-    return "\<CR>"
-  endif
-endfunction
-autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
 
 " https://stackoverflow.com/a/6271254/3288608
 function! GetVisualSelection() range
@@ -465,11 +441,11 @@ vnoremap <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
 " code search in all opened files
 " slow on neovim?
-nnoremap <space><Tab> :call fzf#vim#lines( expand('<cword>') )<CR>
+nnoremap <space>o :call fzf#vim#lines( expand('<cword>') )<CR>
 
 " code search selected text in all opened files
 " slow on neovim?
-vnoremap <space><Tab> :call fzf#vim#lines( GetVisualSelection() )<CR>
+vnoremap <space>o :call fzf#vim#lines( GetVisualSelection() )<CR>
 
 " code search all project files with similar extensions
 nnoremap <space>f :call AgSimilarFile(0)<CR>

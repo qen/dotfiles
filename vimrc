@@ -1,5 +1,5 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
+set nocompatible " be iMproved, required
+filetype off     " required
 
 " =====================
 " Plugins
@@ -203,7 +203,6 @@ set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.j
 
 " remove trailing spaces
 autocmd BufWritePre * %s/\s\+$//e
-
 " convert all tab to spaces on save
 autocmd BufWritePre * :retab
 
@@ -284,12 +283,13 @@ function! AgProjectDirectories(visual) range
 endfunction
 
 " code search to all files limited to the current buffer file extension,
-" search query is the selected text
+" ag --list-file-types
+let s:ag_known_file_types = { 'vim': '--vim', 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass' }
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
-
   if needle != ''
-    call fzf#vim#ag_raw('-G "\.('. expand('%:e') .')$" '.needle)
+    let agftype = get(s:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')
+    call fzf#vim#ag_raw(agftype.' '.needle)
   endif
 endfunction
 

@@ -49,8 +49,7 @@ Plugin 'pangloss/vim-javascript'
 Plugin 'mxw/vim-jsx'
 
 Plugin 'Yggdroot/indentLine'
-
-" let g:indentLine_enabled = 1
+let g:indentLine_enabled = 1
 
 " Vim
 " http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
@@ -74,7 +73,6 @@ Plugin 'slim-template/vim-slim.git'
 Plugin 'tpope/vim-haml'
 
 Plugin 'airblade/vim-gitgutter'
-" let g:gitgutter_sign_column_always = 1
 
 Plugin 'hail2u/vim-css3-syntax'
 
@@ -128,6 +126,8 @@ set timeout timeoutlen=3000 ttimeoutlen=100
 " let g:AutoPairsUseInsertedCount = 1
 
 Plugin 'wincent/scalpel'
+
+" Plugin 'justinmk/vim-sneak'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -282,7 +282,7 @@ endfunction
 autocmd FileType ruby imap <buffer> <CR> <C-R>=CloseRubyEndToken()<CR>
 
 " https://stackoverflow.com/a/6271254/3288608
-function! GetVisualSelection()
+function! GetVisualSelection() range
   " Why is this not a built-in Vim script function?!
   let [lnum1, col1] = getpos("'<")[1:2]
   let [lnum2, col2] = getpos("'>")[1:2]
@@ -299,21 +299,32 @@ endfunction
 " endfunction
 " vnoremap <leader>f :call FileSearchRange()<CR>
 
-" code search to all files limited to the current buffer file extension,
-" search query is the selected text
-function! CodeSearchSimilarFile(visual) range
-  let needle = ''
-
+function! s:input_visual_cword(visual)
   if a:visual == '0'
     call inputsave()
     let needle = input('Search: ',  expand('<cword>'), 'tag')
     call inputrestore()
+    return needle
   else
-    let needle = GetVisualSelection()
+    return GetVisualSelection()
   endif
+endfunction
+
+function! AgProjectDirectories(visual) range
+  let needle = s:input_visual_cword(a:visual)
 
   if needle != ''
-    call fzf#vim#grep('ag --nogroup --column -G "\.('. expand('%:e') .')$" --color '.needle, 1)
+    call fzf#vim#ag_raw(needle.' '.join(g:projectdirectories, ' '))
+  endif
+endfunction
+
+" code search to all files limited to the current buffer file extension,
+" search query is the selected text
+function! AgSimilarFile(visual) range
+  let needle = s:input_visual_cword(a:visual)
+
+  if needle != ''
+    call fzf#vim#ag_raw('-G "\.('. expand('%:e') .')$" '.needle)
   endif
 endfunction
 
@@ -337,7 +348,7 @@ function! CodeReplaceSelection(range, target) range
 
   if target == ''
     call inputsave()
-    let target = input('Search'.suffix.': ', @0)
+    let target = input('Search'.suffix.': ')
     call inputrestore()
   endif
 
@@ -373,7 +384,7 @@ function! SaveAs()
   endif
 endfunction
 command! SaveAs call SaveAs()
-nnoremap <F2> :silent call SaveAs()<CR>
+nnoremap <F2> :call SaveAs()<CR>
 
 function! RenameFile()
   let current_file = expand('%')
@@ -387,7 +398,7 @@ function! RenameFile()
   endif
 endfunction
 command! RenameFile call RenameFile()
-nnoremap <F3> :silent call RenameFile()<CR>
+nnoremap <F3> :call RenameFile()<CR>
 
 function! OpenDirectory()
   call inputsave()
@@ -396,7 +407,7 @@ function! OpenDirectory()
   call system("open '". dir ."'")
 endfunction
 " open of current working directory
-nnoremap <F4> :silent call OpenDirectory()<CR>
+nnoremap <F4> :call OpenDirectory()<CR>
 
 " scalpel find and replace word
 nmap <F5> <Plug>(Scalpel)
@@ -413,6 +424,15 @@ nmap <F7> :let @*=expand("%:p")<CR>
 " reload vimrc
 nnoremap <Leader>R :so $MYVIMRC<CR>:nohlsearch<CR>
 
+" run a command
+nnoremap <Leader><CR> :!
+
+" save file
+noremap <leader>w :w<CR>
+
+" unbind shift-k, its annoying
+map <S-k> <Nop>
+
 " --------------------
 " Tab shortcut to operate on files
 " --------------------
@@ -424,20 +444,17 @@ nnoremap <Tab><Tab> :b#<CR>
 nnoremap <Tab>q :bd!<CR>
 
 " open files
-" nnoremap <Tab>o :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-" nnoremap <Tab>O :edit <space>
-nnoremap <Tab>f :Files<CR>
-nnoremap <Tab>g :GFiles<CR>
+nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
+" nnoremap <Tab>F :Files<CR>
+" nnoremap <Tab>G :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
 nnoremap <Tab>o :call fzf#vim#filesuggest()<CR>
+nnoremap <Tab>O :Files<CR>
 
-" - app, config, db, lib
+" - app, config, db, lib, spec, test
 let g:projectdirectories = [ 'app', 'config', 'db', 'lib', 'spec', 'test' ]
 nnoremap <Tab>p :call fzf#vim#filefolders(g:projectdirectories)<CR>
-
-" - find files in cwd that is similar to the file extension for the current open buffer
-" nnoremap <Tab>d :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
 
 " - models
 nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
@@ -448,58 +465,75 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 " - controllers
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
 
-" find file selected text in specified folders
-" or the current word if no selected text
-function! FileSearchRange(visual) range
-  let query =  a:visual == '0' ? expand('<cword>') : GetVisualSelection()
-  call fzf#vim#filefolders(g:projectdirectories, query )
-endfunction
-vnoremap <leader>f :call FileSearchRange(1)<CR>
-nnoremap <leader>f :call FileSearchRange(0)<CR>
+" find file current word in project directories
+nnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, expand('<cword>'))<CR>
 
-" code search selected text on all buffers
-vnoremap <Tab><space> :call fzf#vim#lines( GetVisualSelection() )<CR>
-
-" code search in all opened files
-nnoremap <Tab><space> :Lines<CR>
+" find file selected text in project directories
+vnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, GetVisualSelection())<CR>
 
 " --------------------
 "  Code Search using space as prefix
 " --------------------
 
 " code search in current open file
-nnoremap <space><space> :BLines<CR>
+nnoremap <space><space> :call fzf#vim#buffer_lines( expand('<cword>') )<CR>
 
 " code search selected text on current file
 vnoremap <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
-" code search highlighted text, all project files with similar extensions
-vnoremap <space>k :call CodeSearchSimilarFile(1)<CR>
+" code search in all opened files
+" slow on neovim?
+nnoremap <space><Tab> :call fzf#vim#lines( expand('<cword>') )<CR>
+
+" code search selected text in all opened files
+" slow on neovim?
+vnoremap <space><Tab> :call fzf#vim#lines( GetVisualSelection() )<CR>
 
 " code search all project files with similar extensions
-nnoremap <space>k :call CodeSearchSimilarFile(0)<CR>
+nnoremap <space>f :call AgSimilarFile(0)<CR>
+
+" code search selected text, all project files with similar extensions
+vnoremap <space>f :call AgSimilarFile(1)<CR>
 
 " code search on current word to all files in current directory
-nnoremap <space><Leader> :Ag <c-r><c-w>
+nnoremap <space>p :call AgProjectDirectories(0)<CR>
 
-" code search on selected to all files in current directory
-vnoremap <space><Leader> :call fzf#vim#ag(GetVisualSelection())<CR>
+" code search selected text to all files in current directory
+vnoremap <space>p :call AgProjectDirectories(1)<CR>
+
+" https://github.com/junegunn/fzf.vim/issues/27#issuecomment-185761539
+" AgIn dir query
+function! s:ag_in(...)
+  call fzf#vim#ag_raw(join(a:000[1:]).' '.a:1)
+endfunction
+command! -nargs=+ -complete=dir AgIn call s:ag_in(<f-args>)
 
 " --------------------
 "  Find and Replace
 " --------------------
 
 " replace text found in current buffer
-nnoremap R :call CodeReplaceSelection(0, '')<CR>
+nnoremap RR :call CodeReplaceSelection(0, '')<CR>
 
 " replace text found in selected text range
-vnoremap R :call CodeReplaceSelection(1, '')<CR>
+vnoremap RR :call CodeReplaceSelection(1, '')<CR>
 
-" replace current word found in current buffer
-nnoremap <leader>r :call CodeReplaceSelection(0, 'current_word')<CR>
+" replace text current word found in current buffer
+nnoremap RT :call CodeReplaceSelection(0, 'current_word')<CR>
 
-" replace selected text found in current buffer
-vnoremap <leader>r :call CodeReplaceSelection(0, 'selected_word')<CR>
+" replace text selected text found in current buffer
+vnoremap RT :call CodeReplaceSelection(0, 'selected_word')<CR>
+
+" --------------------
+" Format code using tabularize
+" --------------------
+
+" code formating, using Tabularize, must have an existing selected text
+" http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
+vnoremap FF :Tab/
+vnoremap F> :Tab/=><CR>
+vnoremap F= :Tab/=<CR>
+vnoremap F: :Tab/:\zs<CR>
 
 " --------------------
 " Tab w window navigation stuff
@@ -522,9 +556,6 @@ nnoremap <Tab>wh <C-w>h<CR>
 
 " --------------------
 
-" run a command
-nnoremap <Leader><CR> :!
-
 " https://stackoverflow.com/a/6923282/3288608
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
@@ -532,12 +563,13 @@ cnoremap <C-k> <Up>
 cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
+
 " move next word, on insert mode type ctrl-v alt-f,
 " do not map this on insert mode
-cnoremap f <s-right>
+" cnoremap f <s-right>
 " move previous word, on insert mode type ctrl-v alt-b
 " do not map this on insert mode
-cnoremap b <s-left>
+" cnoremap b <s-left>
 
 nnoremap { 10kzz
 nnoremap <C-k> 10kzz
@@ -546,8 +578,8 @@ nnoremap } 10jzz
 nnoremap <C-j> 10jzz
 vnoremap <C-j> 10jzz
 
-nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-nnoremap <Leader>E :edit <space>
+" nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
+" nnoremap <Leader>E :edit <space>
 
 " Custom fzf mappings
 
@@ -604,13 +636,6 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 " inoremap <c-@><c-@> <c-x><c-o><c-p>
 set omnifunc=syntaxcomplete#Complete
 
-" code formating, using Tabularize, must have an existing selected text
-" http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
-vnoremap FF :Tab/
-vnoremap F> :Tab/=><CR>
-vnoremap F= :Tab/=<CR>
-vnoremap F: :Tab/:\zs<CR>
-
 " surround selected text
 " https://www.reddit.com/r/vim/comments/25acm8/dear_amazing_vim_people_which_plugintrick_made/chftfel/?utm_content=permalink&utm_medium=front&utm_source=reddit&utm_name=vim
 " ` backtick
@@ -624,9 +649,4 @@ vnoremap F: :Tab/:\zs<CR>
 nnoremap <silent> <leader><leader> :call NERDComment('n', 'Toggle')<CR>
 vnoremap <silent> <leader><leader> :call NERDComment('v', 'Toggle')<CR>
 
-" unbind shift-k, its annoying
-map <S-k> <Nop>
-
-" save file
-noremap <leader>w :w<CR>
 

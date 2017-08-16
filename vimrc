@@ -1,10 +1,6 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
-" remap ESC twice
-" inoremap jk <ESC><ESC>
-" vnoremap jk <ESC><ESC>
-
 " =====================
 " Plugins
 " =====================
@@ -12,15 +8,11 @@ filetype off                  " required
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
 Plugin 'flazz/vim-colorschemes'
-
-" Bundle 'edkolev/tmuxline.vim'
 
 " Vim airline theme
 Plugin 'vim-airline/vim-airline'
@@ -50,22 +42,17 @@ Plugin 'mxw/vim-jsx'
 
 Plugin 'Yggdroot/indentLine'
 let g:indentLine_enabled = 1
-
 " Vim
 " http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 let g:indentLine_color_term = 237
-
 " GVim
 " let g:indentLine_color_gui = '#A4E57E'
-
 " none X terminal
 " let g:indentLine_color_tty_light = 7 " (default: 4)
 " let g:indentLine_color_dark = 1 " (default: 2)
-
 " Background (Vim, GVim)
 " let g:indentLine_bgcolor_term = 202
 " let g:indentLine_bgcolor_gui = '#000000'
-
 let g:indentLine_char = '¦'
 
 Plugin 'slim-template/vim-slim.git'
@@ -157,6 +144,19 @@ set ruler
 set relativenumber
 set number
 " set mouse=a
+" set cursorline
+" set term=xterm
+set swapfile
+set dir=~/.vim/tmp
+set hidden
+set novisualbell
+set noerrorbells
+set hlsearch
+set clipboard=unnamed
+set cmdheight=1
+set laststatus=2
+set nowrap
+set confirm
 
 set autoindent                  " always set autoindenting on
 set tabstop=2
@@ -165,36 +165,16 @@ set softtabstop=2
 set smarttab
 set expandtab
 
-set hlsearch
-set clipboard=unnamed
-set cmdheight=1
-set laststatus=2
-" set cursorline
-" set term=xterm
-set nowrap
-set confirm
-
 " Split settings
 set splitbelow
 set splitright
 
-set swapfile
-set dir=~/.vim/tmp
-set hidden
-
-set novisualbell
-set noerrorbells
-
 " yank is also copied to clipboard:  https://stackoverflow.com/a/9166988/3288608
 set guioptions+=a
-
-" Explorer setup
-let g:netrw_bufsettings = 'noma nomod nu nowrap ro nobl'
 
 " you need to run fg after to return to vim
 set shellcmdflag=-ic
 
-" autocmd ColorScheme * highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 " http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 colorscheme Tomorrow-Night-Eighties
 highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
@@ -205,11 +185,11 @@ set scrolloff=3
 
 " redifine keyword definition, include dash
 " https://woss.name/articles/vim-iskeyword/
-set iskeyword=@,!,?,48-57,_,192-255,-
+" set iskeyword=@,!,?,48-57,_,192-255,-
 
 " globpath wildignore
 " https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
-set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock
+set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
 
 " =====================
 " Scripts
@@ -247,6 +227,7 @@ function! ConfirmDelete()
     :call delete(expand('%')) | bdelete!
   endif
 endfu
+
 " delete file with confirmation
 " to produce ^? special character, type ctrl-v first then the special character delete
 nnoremap <leader> :call ConfirmDelete()<CR>
@@ -299,13 +280,6 @@ function! GetVisualSelection() range
   let lines[0] = lines[0][col1 - 1:]
   return join(lines, "\n")
 endfunction
-
-" search files of current selected text
-" https://github.com/junegunn/fzf/wiki/Examples-(vim)#using-fzfwrap-function
-" function! FileSearchRange() range
-"  call fzf#run( fzf#wrap( { 'options': '-q' . GetVisualSelection() } ) )
-" endfunction
-" vnoremap <leader>f :call FileSearchRange()<CR>
 
 function! s:input_visual_cword(visual)
   if a:visual == '0'
@@ -572,54 +546,12 @@ cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 
-" move next word, on insert mode type ctrl-v alt-f,
-" do not map this on insert mode
-" cnoremap f <s-right>
-" move previous word, on insert mode type ctrl-v alt-b
-" do not map this on insert mode
-" cnoremap b <s-left>
-
 nnoremap { 10kzz
 nnoremap <C-k> 10kzz
 vnoremap <C-k> 10kzz
 nnoremap } 10jzz
 nnoremap <C-j> 10jzz
 vnoremap <C-j> 10jzz
-
-" nnoremap <Leader>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-" nnoremap <Leader>E :edit <space>
-
-" Custom fzf mappings
-
-" code search on current working directory
-" nnoremap <Leader>a :Ag <c-r><c-w>
-
-" nnoremap <Leader>g :GFiles<CR>
-
-" nnoremap <Leader>h :History<CR>
-
-" search files
-
-" - current working direcotry, the global search
-" nnoremap <Leader>d :Files<CR>
-
-" " - find files in cwd that is similar to the file extension for the current open buffer
-" nnoremap <Leader>Ff :call fzf#vim#files('', {'down': '40%', 'source': 'find . -type f -name "*.'.expand('%:e').'" \| sed s/^..//' })<CR>
-
-" " - the directory of the current opened file
-" nnoremap <Leader>ff :call fzf#vim#files(expand('%:h'))<CR>
-
-" " - models
-" nnoremap <Leader>fm :call fzf#vim#files('app/models')<CR>
-
-" " - views
-" nnoremap <Leader>fv :call fzf#vim#files('app/views')<CR>
-
-" " - controllers
-" nnoremap <Leader>fc :call fzf#vim#files('app/controllers')<CR>
-
-" " - app
-" nnoremap <Leader>fa :call fzf#vim#files('app')<CR>
 
 " Movement in insert mode
 inoremap <C-h> <c-o>h
@@ -644,17 +576,7 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 " inoremap <c-@><c-@> <c-x><c-o><c-p>
 set omnifunc=syntaxcomplete#Complete
 
-" surround selected text
-" https://www.reddit.com/r/vim/comments/25acm8/dear_amazing_vim_people_which_plugintrick_made/chftfel/?utm_content=permalink&utm_medium=front&utm_source=reddit&utm_name=vim
-" ` backtick
-" vnoremap <Leader><esc>`>a"<esc>`<i"<esc>
-" vnoremap <Leader>' <esc>`>a'<esc>`<i'<esc>
-" vnoremap <Leader>( <esc>`>a)<esc>`<i(<esc>
-" vnoremap <Leader>[ <esc>`>a]<esc>`<i[<esc>
-" vnoremap <Leader>{ <esc>`>a}<esc>`<i{<esc>
-
 " shortcut for nerd comment
 nnoremap <silent> <leader><leader> :call NERDComment('n', 'Toggle')<CR>
 vnoremap <silent> <leader><leader> :call NERDComment('v', 'Toggle')<CR>
-
 

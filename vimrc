@@ -189,7 +189,7 @@ set scrolloff=3
 
 " globpath wildignore
 " https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
-set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
+set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
 
 " =====================
 " Scripts

@@ -127,7 +127,13 @@ set timeout timeoutlen=3000 ttimeoutlen=100
 
 Plugin 'wincent/scalpel'
 
-" Plugin 'justinmk/vim-sneak'
+Plugin 'justinmk/vim-sneak'
+let g:sneak#s_next = 1
+" let g:sneak#label = 1
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -189,9 +195,11 @@ let g:netrw_bufsettings = 'noma nomod nu nowrap ro nobl'
 set shellcmdflag=-ic
 
 " autocmd ColorScheme * highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+" http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 colorscheme Tomorrow-Night-Eighties
 highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
+highlight Sneak ctermfg=235 ctermbg=222
 
 set scrolloff=3
 

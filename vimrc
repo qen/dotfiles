@@ -96,17 +96,6 @@ Plugin 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
 set timeout timeoutlen=3000 ttimeoutlen=100
 
-" NOT SURE IF I SHOULD ENABLE THIS,
-" doing so would add more plugin per language
-" Plugin 'vim-syntastic/syntastic'
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-
 Plugin 'jiangmiao/auto-pairs'
 
 Plugin 'tpope/vim-endwise'
@@ -121,8 +110,26 @@ map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 map T <Plug>Sneak_T
 
+" NOT SURE IF I SHOULD ENABLE THIS,
+" doing so would add more plugin per language
+" Plugin 'vim-syntastic/syntastic'
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
+
+" Plugin 'Shougo/deoplete.nvim'
+" " enable at startup
+" let g:deoplete#enable_at_startup = 1
+" " deoplete tab-complete  https://www.gregjs.com/vim/2016/configuring-the-deoplete-asynchronous-keyword-completion-plugin-with-tern-for-vim/
+" inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+" Plugin 'fishbullet/deoplete-ruby'
+
 " All of your Plugins must be added before the following line
-call vundle#end()            " required
+call vundle#end()
 
 " =====================
 " Settings

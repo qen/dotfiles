@@ -435,7 +435,7 @@ nnoremap <Tab>o :call fzf#vim#filesuggest()<CR>
 nnoremap <Tab>O :Files<CR>
 
 " - app, config, db, lib, spec, test
-let g:projectdirectories = [ 'app', 'config', 'db', 'lib', 'spec', 'test' ]
+let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
 nnoremap <Tab>p :call fzf#vim#filefolders(g:projectdirectories)<CR>
 
 " - models

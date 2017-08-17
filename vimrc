@@ -195,7 +195,11 @@ set scrolloff=3
 
 " globpath wildignore
 " https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
-set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
+if filereadable($HOME.'/.agignore')
+  let &wildignore = join(readfile($HOME.'/.agignore'),',')
+else
+  set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
+endif
 
 " =====================
 " Scripts
@@ -276,15 +280,14 @@ endfunction
 
 function! AgProjectDirectories(visual) range
   let needle = s:input_visual_cword(a:visual)
-
   if needle != ''
     call fzf#vim#ag_raw(needle.' '.join(g:projectdirectories, ' '))
   endif
 endfunction
 
 " code search to all files limited to the current buffer file extension,
-" ag --list-file-types
-let s:ag_known_file_types = { 'vim': '--vim', 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass' }
+" > ag --list-file-types
+let s:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php' }
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
@@ -302,11 +305,9 @@ function! CodeReplaceSelection(range, target) range
   else
     echo "Find and Replace Text"
   endif
-
   if a:target == 'current_word'
     let target = expand('<cword>')
   endif
-
   if a:target == 'selected_word'
     let target = GetVisualSelection()
   endif
@@ -316,7 +317,6 @@ function! CodeReplaceSelection(range, target) range
     let target = input('Search'.suffix.': ')
     call inputrestore()
   endif
-
   if target == ''
     return ''
   endif

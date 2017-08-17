@@ -187,7 +187,7 @@ highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE gui
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
 highlight Sneak ctermfg=235 ctermbg=222
 
-set scrolloff=3
+set scrolloff=5
 
 " redifine keyword definition, include dash
 " https://woss.name/articles/vim-iskeyword/
@@ -196,7 +196,7 @@ set scrolloff=3
 " globpath wildignore
 " https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
 if filereadable($HOME.'/.agignore')
-  let &wildignore = join(readfile($HOME.'/.agignore'),',')
+  let &wildignore=join(readfile($HOME.'/.agignore'),',')
 else
   set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
 endif

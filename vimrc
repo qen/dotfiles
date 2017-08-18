@@ -20,6 +20,7 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 
 let g:airline_theme='luna'
+" let g:airline_theme='base16_eighties'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
@@ -64,6 +65,7 @@ Plugin 'airblade/vim-gitgutter'
 Plugin 'hail2u/vim-css3-syntax'
 
 Plugin 'vim-ruby/vim-ruby'
+let g:no_ruby_maps = 0
 
 Plugin 'tpope/vim-rails'
 
@@ -97,6 +99,7 @@ let g:surround_no_insert_mappings = 0
 set timeout timeoutlen=3000 ttimeoutlen=100
 
 Plugin 'jiangmiao/auto-pairs'
+let g:AutoPairsFlyMode = 1
 
 Plugin 'tpope/vim-endwise'
 
@@ -106,9 +109,9 @@ Plugin 'justinmk/vim-sneak'
 let g:sneak#s_next = 1
 " let g:sneak#label = 1
 map f <Plug>Sneak_f
-map F <Plug>Sneak_F
+" map F <Plug>Sneak_F
 map t <Plug>Sneak_t
-map T <Plug>Sneak_T
+" map T <Plug>Sneak_T
 
 " NOT SURE IF I SHOULD ENABLE THIS,
 " doing so would add more plugin per language
@@ -187,7 +190,7 @@ highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE gui
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
 highlight Sneak ctermfg=235 ctermbg=222
 
-set scrolloff=5
+set scrolloff=10
 
 " redifine keyword definition, include dash
 " https://woss.name/articles/vim-iskeyword/
@@ -387,16 +390,23 @@ nmap <F7> :let @*=expand("%:p")<CR>
 " =====================
 
 " reload vimrc
-nnoremap <Leader>R :so $MYVIMRC<CR>:nohlsearch<CR>
+nnoremap <Leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
 
 " run a command
-nnoremap <Leader><CR> :!
+if has('nvim')
+  nnoremap <Leader><CR> :terminal<CR>
+  " tnoremap <Esc> <C-\><C-n>
+else
+  nnoremap <Leader><CR> :!ll<CR>
+endif
 
 " save file
 noremap <leader>w :w<CR>
 
 " unbind shift-k, its annoying
 map <S-k> <Nop>
+map <c-[> <Nop>
+map <c-]> <Nop>
 
 " --------------------
 " Tab shortcut to operate on files
@@ -414,8 +424,8 @@ nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 " nnoremap <Tab>G :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-nnoremap <Tab>o :call fzf#vim#filesuggest()<CR>
-nnoremap <Tab>O :Files<CR>
+nnoremap <Tab>d :call fzf#vim#filesuggest()<CR>
+" nnoremap <c- :Files<CR>
 
 " - app, config, db, lib, spec, test
 let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
@@ -441,18 +451,18 @@ vnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, GetVisualSelecti
 " --------------------
 
 " code search in current open file
-nnoremap <space><space> :call fzf#vim#buffer_lines( expand('<cword>') )<CR>
+nnoremap <space><space> :call fzf#vim#buffer_lines()<CR>
 
 " code search selected text on current file
 vnoremap <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
 " code search in all opened files
 " slow on neovim?
-nnoremap <space>o :call fzf#vim#lines( expand('<cword>') )<CR>
+nnoremap <space><tab> :call fzf#vim#lines()<CR>
 
 " code search selected text in all opened files
 " slow on neovim?
-vnoremap <space>o :call fzf#vim#lines( GetVisualSelection() )<CR>
+vnoremap <space><tab> :call fzf#vim#lines( GetVisualSelection() )<CR>
 
 " code search all project files with similar extensions
 nnoremap <space>f :call AgSimilarFile(0)<CR>
@@ -496,7 +506,6 @@ vnoremap RT :call CodeReplaceSelection(0, 'selected_word')<CR>
 " code formating, using Tabularize, must have an existing selected text
 " http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
 vnoremap FF :Tab/
-vnoremap F> :Tab/=><CR>
 vnoremap F= :Tab/=<CR>
 vnoremap F: :Tab/:\zs<CR>
 
@@ -529,12 +538,12 @@ cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 
-nnoremap { 10kzz
-nnoremap <C-k> 10kzz
-vnoremap <C-k> 10kzz
-nnoremap } 10jzz
-nnoremap <C-j> 10jzz
-vnoremap <C-j> 10jzz
+" nnoremap { 10kzz
+" nnoremap <C-k> 10kzz
+" vnoremap <C-k> 10kzz
+" nnoremap } 10jzz
+" nnoremap <C-j> 10jzz
+" vnoremap <C-j> 10jzz
 
 " Movement in insert mode
 inoremap <C-h> <c-o>h

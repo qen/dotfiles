@@ -1,6 +1,11 @@
 set nocompatible " be iMproved, required
 filetype off     " required
 
+" additional ESC, on insert and visual mode
+imap <c-c> <ESC>
+vmap <c-c> <ESC>
+" vmap jk <ESC>
+
 " =====================
 " Plugins
 " =====================
@@ -109,7 +114,7 @@ Plugin 'justinmk/vim-sneak'
 let g:sneak#s_next = 1
 " let g:sneak#label = 1
 map f <Plug>Sneak_f
-" map F <Plug>Sneak_F
+map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 " map T <Plug>Sneak_T
 
@@ -180,14 +185,14 @@ set splitright
 
 " yank is also copied to clipboard:  https://stackoverflow.com/a/9166988/3288608
 set guioptions+=a
-
-" you need to run fg after to return to vim
-set shellcmdflag=-ic
+set shellcmdflag=-c
 
 " http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 colorscheme Tomorrow-Night-Eighties
 highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
+" highlight CursorLineNR term=NONE cterm=NONE ctermfg=Black ctermbg=Yellow gui=NONE guifg=Yellow guibg=NONE
+" highlight Cursor guifg=white guibg=black ctermfg=Black ctermbg=Yellow
 highlight Sneak ctermfg=235 ctermbg=222
 
 set scrolloff=10
@@ -290,7 +295,7 @@ endfunction
 
 " code search to all files limited to the current buffer file extension,
 " > ag --list-file-types
-let s:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php' }
+let s:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php', 'haml': '--haml --ruby' }
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
@@ -332,9 +337,11 @@ function! CodeReplaceSelection(range, target) range
   endif
 
   if a:range == 1
-    execute ":'<,'>Scalpel/\\\v<".target.'>/'.replace."/"
+    " execute ":'<,'>Scalpel/\\\v<".target.'>/'.replace."/"
+    execute ":'<,'>Scalpel/".target.'/'.replace."/"
   else
-    execute ":Scalpel/\\\v<".target.'>/'.replace."/"
+    " execute ":Scalpel/\\\v<".target.'>/'.replace."/"
+    execute ":Scalpel/".target.'/'.replace."/"
   endif
 endfunction
 
@@ -405,8 +412,7 @@ noremap <leader>w :w<CR>
 
 " unbind shift-k, its annoying
 map <S-k> <Nop>
-map <c-[> <Nop>
-map <c-]> <Nop>
+nnoremap <c-q> <Esc>
 
 " --------------------
 " Tab shortcut to operate on files
@@ -415,7 +421,7 @@ map <c-]> <Nop>
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
-nnoremap <Tab><Tab> :b#<CR>
+nnoremap <Tab><enter> :b#<CR>
 nnoremap <Tab>q :bd!<CR>
 
 " open files
@@ -424,12 +430,12 @@ nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 " nnoremap <Tab>G :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-nnoremap <Tab>d :call fzf#vim#filesuggest()<CR>
+" nnoremap <Tab>d :call fzf#vim#filesuggest()<CR>
+nnoremap <Tab><Tab> :call fzf#vim#filesuggest()<CR>
+" nnoremap <C-Tab> :call fzf#vim#filesuggest()<CR>
+" nnoremap `` :call fzf#vim#filesuggest()<CR>
 " nnoremap <c- :Files<CR>
-
-" - app, config, db, lib, spec, test
-let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
-nnoremap <Tab>p :call fzf#vim#filefolders(g:projectdirectories)<CR>
+" nnoremap <Tab><enter> :call fzf#vim#filefolders(g:projectdirectories)<CR>
 
 " - models
 nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
@@ -440,6 +446,9 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 " - controllers
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
 
+" - app, config, db, lib, spec, test
+let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
+
 " find file current word in project directories
 nnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, expand('<cword>'))<CR>
 
@@ -447,7 +456,7 @@ nnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, expand('<cword>'
 vnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, GetVisualSelection())<CR>
 
 " --------------------
-"  Code Search using space as prefix
+"  Code Search using space as suffix
 " --------------------
 
 " code search in current open file
@@ -457,24 +466,22 @@ nnoremap <space><space> :call fzf#vim#buffer_lines()<CR>
 vnoremap <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
 " code search in all opened files
-" slow on neovim?
-nnoremap <space><tab> :call fzf#vim#lines()<CR>
+nnoremap <tab><space> :call fzf#vim#lines()<CR>
 
 " code search selected text in all opened files
-" slow on neovim?
-vnoremap <space><tab> :call fzf#vim#lines( GetVisualSelection() )<CR>
+vnoremap <tab><space> :call fzf#vim#lines( GetVisualSelection() )<CR>
 
 " code search all project files with similar extensions
-nnoremap <space>f :call AgSimilarFile(0)<CR>
+nnoremap <enter><space> :call AgSimilarFile(0)<CR>
 
 " code search selected text, all project files with similar extensions
-vnoremap <space>f :call AgSimilarFile(1)<CR>
+vnoremap <enter><space> :call AgSimilarFile(1)<CR>
 
 " code search on current word to all files in current directory
-nnoremap <space>p :call AgProjectDirectories(0)<CR>
+nnoremap <leader><space> :call AgProjectDirectories(0)<CR>
 
 " code search selected text to all files in current directory
-vnoremap <space>p :call AgProjectDirectories(1)<CR>
+vnoremap <leader><space> :call AgProjectDirectories(1)<CR>
 
 " https://github.com/junegunn/fzf.vim/issues/27#issuecomment-185761539
 " AgIn dir query
@@ -538,13 +545,6 @@ cnoremap <C-j> <Down>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 
-" nnoremap { 10kzz
-" nnoremap <C-k> 10kzz
-" vnoremap <C-k> 10kzz
-" nnoremap } 10jzz
-" nnoremap <C-j> 10jzz
-" vnoremap <C-j> 10jzz
-
 " Movement in insert mode
 inoremap <C-h> <c-o>h
 inoremap <C-l> <c-o>l
@@ -552,9 +552,9 @@ inoremap <C-j> <c-o>j
 inoremap <C-k> <c-o>k
 
 " search forward to a character, in edit mode
-inoremap <C-f> <C-o>f
+inoremap <C-f> <C-o>w
 " search backward to a character, in edit mode
-inoremap <C-b> <C-o>F
+inoremap <C-b> <C-o>b
 
 " center current active line in edit mode
 inoremap <C-z> <C-o>zz

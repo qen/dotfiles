@@ -116,7 +116,7 @@ let g:sneak#s_next = 1
 map f <Plug>Sneak_f
 map F <Plug>Sneak_F
 map t <Plug>Sneak_t
-" map T <Plug>Sneak_T
+map T <Plug>Sneak_T
 
 " NOT SURE IF I SHOULD ENABLE THIS,
 " doing so would add more plugin per language
@@ -427,15 +427,21 @@ nnoremap <Tab>q :bd!<CR>
 " open files
 nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 " nnoremap <Tab>F :Files<CR>
-" nnoremap <Tab>G :GFiles<CR>
+nnoremap <Tab>G :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-" nnoremap <Tab>d :call fzf#vim#filesuggest()<CR>
 nnoremap <Tab><Tab> :call fzf#vim#filesuggest()<CR>
-" nnoremap <C-Tab> :call fzf#vim#filesuggest()<CR>
-" nnoremap `` :call fzf#vim#filesuggest()<CR>
-" nnoremap <c- :Files<CR>
-" nnoremap <Tab><enter> :call fzf#vim#filefolders(g:projectdirectories)<CR>
+
+" - app, config, db, lib, spec, test
+if filereadable('.projectdirectories')
+  let g:projectdirectories = filter( readfile('.projectdirectories'), 'isdirectory(v:val)' )
+else
+  let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
+endif
+let g:projectfiles = systemlist("ag -g '' -n .") " filter(globpath('.', '*', 0, 1), '!isdirectory(v:val)')
+
+" - app
+nnoremap <Tab>p :call fzf#vim#files('app')<CR>
 
 " - models
 nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
@@ -446,14 +452,11 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 " - controllers
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
 
-" - app, config, db, lib, spec, test
-let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
-
 " find file current word in project directories
-nnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, expand('<cword>'))<CR>
+nnoremap <Tab>f :call fzf#vim#filefolders(g:projectfiles, g:projectdirectories)<CR>
 
 " find file selected text in project directories
-vnoremap <Tab>f :call fzf#vim#filefolders(g:projectdirectories, GetVisualSelection())<CR>
+vnoremap <Tab>f :call fzf#vim#filefolders(g:projectfiles, g:projectdirectories, GetVisualSelection())<CR>
 
 " --------------------
 "  Code Search using space as suffix
@@ -536,6 +539,10 @@ nnoremap <Tab>wl <C-w>l<CR>
 nnoremap <Tab>wh <C-w>h<CR>
 
 " --------------------
+
+"make < > shifts keep selection
+vnoremap < <gv
+vnoremap > >gv
 
 " https://stackoverflow.com/a/6923282/3288608
 cnoremap <C-a> <Home>

@@ -1,10 +1,10 @@
+
+" *********************************************************
+if $VIMSLIM==''
+" *********************************************************
+
 set nocompatible " be iMproved, required
 filetype off     " required
-
-" additional ESC, on insert and visual mode
-imap <c-c> <ESC>
-vmap <c-c> <ESC>
-" vmap jk <ESC>
 
 " =====================
 " Plugins
@@ -39,8 +39,8 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 
 " FZF
 Plugin 'junegunn/fzf'
-" Plugin 'junegunn/fzf.vim'
-Plugin 'qen/fzf.vim'
+Plugin 'junegunn/fzf.vim'
+" Plugin 'qen/fzf.vim'
 
 Plugin 'pangloss/vim-javascript'
 
@@ -139,75 +139,6 @@ map T <Plug>Sneak_T
 " All of your Plugins must be added before the following line
 call vundle#end()
 
-" =====================
-" Settings
-" =====================
-
-syntax on
-filetype plugin indent on    " required
-
-set backspace=indent,eol,start
-set nobackup                    " do not keep a backup file, use versions instead
-set history=1000                " keep 50 lines of command line history
-set encoding=utf-8
-set ruler                       " show the cursor position all the time
-set showcmd                     " display incomplete commands
-set showmode
-set incsearch                   " do incremental searching
-set ruler
-set relativenumber
-set number
-" set mouse=a
-" set cursorline
-" set term=xterm
-set swapfile
-set dir=~/.vim/tmp
-set hidden
-set novisualbell
-set noerrorbells
-set hlsearch
-set clipboard=unnamed
-set cmdheight=1
-set laststatus=2
-set nowrap
-set confirm
-
-set autoindent                  " always set autoindenting on
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
-set smarttab
-set expandtab
-
-" Split settings
-set splitbelow
-set splitright
-
-" yank is also copied to clipboard:  https://stackoverflow.com/a/9166988/3288608
-set guioptions+=a
-set shellcmdflag=-c
-
-" http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
-colorscheme Tomorrow-Night-Eighties
-highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
-highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
-" highlight CursorLineNR term=NONE cterm=NONE ctermfg=Black ctermbg=Yellow gui=NONE guifg=Yellow guibg=NONE
-" highlight Cursor guifg=white guibg=black ctermfg=Black ctermbg=Yellow
-highlight Sneak ctermfg=235 ctermbg=222
-
-set scrolloff=10
-
-" redifine keyword definition, include dash
-" https://woss.name/articles/vim-iskeyword/
-" set iskeyword=@,!,?,48-57,_,192-255,-
-
-" globpath wildignore
-" https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
-if filereadable($HOME.'/.agignore')
-  let &wildignore=join(readfile($HOME.'/.agignore'),',')
-else
-  set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
-endif
 
 " =====================
 " Scripts
@@ -289,7 +220,7 @@ endfunction
 function! AgProjectDirectories(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
-    call fzf#vim#ag_raw(needle.' '.join(g:projectdirectories, ' '))
+    call fzf#vim#ag_raw("--path-to-ignore ".getcwd()."/.ignore ".needle)
   endif
 endfunction
 
@@ -300,7 +231,7 @@ function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
     let agftype = get(s:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')
-    call fzf#vim#ag_raw(agftype.' '.needle)
+    call fzf#vim#ag_raw("--path-to-ignore ".getcwd()."/.ignore ".agftype.' '.needle)
   endif
 endfunction
 
@@ -421,8 +352,8 @@ nnoremap <c-q> <Esc>
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
-nnoremap <Tab><enter> :b#<CR>
 nnoremap <Tab>q :bd!<CR>
+nnoremap <Tab><Tab> :b#<CR>
 
 " open files
 nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
@@ -430,18 +361,12 @@ nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <Tab>G :GFiles<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-nnoremap <Tab><Tab> :call fzf#vim#filesuggest()<CR>
-
-" - app, config, db, lib, spec, test
-if filereadable('.projectdirectories')
-  let g:projectdirectories = filter( readfile('.projectdirectories'), 'isdirectory(v:val)' )
-else
-  let g:projectdirectories = filter([ 'app', 'config', 'db', 'lib', 'spec', 'test' ], 'isdirectory(v:val)')
-endif
-let g:projectfiles = systemlist("ag -g '' -n .") " filter(globpath('.', '*', 0, 1), '!isdirectory(v:val)')
+nnoremap <Tab><Enter> :Buffers<CR>
+nnoremap <Tab><Leader> :call fzf#vim#files(expand('%:h'), { 'source': "ag -g '' --path-to-ignore ".getcwd()."/.ignore  " } )<CR>
 
 " - app
-nnoremap <Tab>p :call fzf#vim#files('app')<CR>
+" nnoremap <Tab>p :call fzf#vim#files('app')<CR>
+nnoremap <Tab>p :call fzf#vim#files('app', { 'source': "ag -g '' --ignore-dir assets"  } )<CR>
 
 " - models
 nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
@@ -453,10 +378,10 @@ nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
 nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
 
 " find file current word in project directories
-nnoremap <Tab>f :call fzf#vim#filefolders(g:projectfiles, g:projectdirectories)<CR>
+nnoremap <Tab>f :call fzf#vim#files('', { 'source': "ag -g '' --path-to-ignore ".getcwd()."/.ignore  " } )<CR>
 
 " find file selected text in project directories
-vnoremap <Tab>f :call fzf#vim#filefolders(g:projectfiles, g:projectdirectories, GetVisualSelection())<CR>
+vnoremap <Tab>f :call fzf#vim#files('', { 'source': "ag -g '' --path-to-ignore ".getcwd()."/.ignore  ", 'options': '-q '.GetVisualSelection() } )<CR>
 
 " --------------------
 "  Code Search using space as suffix
@@ -540,6 +465,19 @@ nnoremap <Tab>wh <C-w>h<CR>
 
 " --------------------
 
+" *********************************************************
+endif " VIMSLIM END
+" *********************************************************
+
+" =====================
+" keymap helper settings
+" =====================
+
+" additional ESC, on insert and visual mode
+imap <c-c> <ESC>
+vmap <c-c> <ESC>
+" vmap jk <ESC>
+
 "make < > shifts keep selection
 vnoremap < <gv
 vnoremap > >gv
@@ -579,3 +517,72 @@ set omnifunc=syntaxcomplete#Complete
 nnoremap <silent> <leader><leader> :call NERDComment('n', 'Toggle')<CR>
 vnoremap <silent> <leader><leader> :call NERDComment('v', 'Toggle')<CR>
 
+" =====================
+" Settings
+" =====================
+
+syntax on
+filetype plugin indent on    " required
+
+set backspace=indent,eol,start
+set nobackup                    " do not keep a backup file, use versions instead
+set history=1000                " keep 50 lines of command line history
+set encoding=utf-8
+set ruler                       " show the cursor position all the time
+set showcmd                     " display incomplete commands
+set showmode
+set incsearch                   " do incremental searching
+set ruler
+set relativenumber
+set number
+" set mouse=a
+" set cursorline
+" set term=xterm
+set swapfile
+set dir=~/.vim/tmp
+set hidden
+set novisualbell
+set noerrorbells
+set hlsearch
+set clipboard=unnamed
+set cmdheight=1
+set laststatus=2
+set nowrap
+set confirm
+
+set autoindent                  " always set autoindenting on
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set smarttab
+set expandtab
+
+" Split settings
+set splitbelow
+set splitright
+
+" yank is also copied to clipboard:  https://stackoverflow.com/a/9166988/3288608
+set guioptions+=a
+set shellcmdflag=-c
+
+" http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
+colorscheme Tomorrow-Night-Eighties
+highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
+" highlight CursorLineNR term=NONE cterm=NONE ctermfg=Black ctermbg=Yellow gui=NONE guifg=Yellow guibg=NONE
+" highlight Cursor guifg=white guibg=black ctermfg=Black ctermbg=Yellow
+highlight Sneak ctermfg=235 ctermbg=222
+
+set scrolloff=10
+
+" redifine keyword definition, include dash
+" https://woss.name/articles/vim-iskeyword/
+" set iskeyword=@,!,?,48-57,_,192-255,-
+
+" globpath wildignore
+" https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
+if filereadable($HOME.'/.agignore')
+  let &wildignore=join(readfile($HOME.'/.agignore'),',')
+else
+  set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
+endif

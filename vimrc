@@ -40,7 +40,6 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 " FZF
 Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
-" Plugin 'qen/fzf.vim'
 
 Plugin 'pangloss/vim-javascript'
 
@@ -139,15 +138,21 @@ map T <Plug>Sneak_T
 " All of your Plugins must be added before the following line
 call vundle#end()
 
-
 " =====================
 " Scripts
 " =====================
 
-" remove trailing spaces
-autocmd BufWritePre * %s/\s\+$//e
-" convert all tab to spaces on save
-autocmd BufWritePre * :retab
+" sink function in fzf
+function! CreateOrOpenFile(prefix, files)
+  let files = filter(a:files[1:], '!empty(v:val)')
+  if len(files) == 0
+    execute 'e '.a:prefix.'/'.a:files[0]
+  else
+    for file in files
+      execute 'e '. file
+    endfor
+  endif
+endfunction
 
 " confirm quit
 " https://stackoverflow.com/a/32239265/3288608
@@ -178,7 +183,7 @@ endfu
 
 " delete file with confirmation
 " to produce ^? special character, type ctrl-v first then the special character delete
-nnoremap <leader> :call ConfirmDelete()<CR>
+nnoremap <leader><BS> :call ConfirmDelete()<CR>
 
 " save with auto create directory
 " https://stackoverflow.com/a/4294176/3288608
@@ -224,8 +229,7 @@ function! AgProjectDirectories(visual) range
   endif
 endfunction
 
-" code search to all files limited to the current buffer file extension,
-" > ag --list-file-types
+" code search to all files limited to the current buffer file extension, ag --list-file-types
 let s:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php', 'haml': '--haml --ruby' }
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
@@ -330,14 +334,6 @@ nmap <F7> :let @*=expand("%:p")<CR>
 " reload vimrc
 nnoremap <Leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
 
-" run a command
-if has('nvim')
-  nnoremap <Leader><CR> :terminal<CR>
-  " tnoremap <Esc> <C-\><C-n>
-else
-  nnoremap <Leader><CR> :!ll<CR>
-endif
-
 " save file
 noremap <leader>w :w<CR>
 
@@ -349,67 +345,76 @@ nnoremap <c-q> <Esc>
 " Tab shortcut to operate on files
 " --------------------
 
+let agsource = "ag -g '' --path-to-ignore ".getcwd()."/.ignore "
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
 nnoremap <Tab>q :bd!<CR>
-nnoremap <Tab><Tab> :b#<CR>
 
 " open files
-nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-" nnoremap <Tab>F :Files<CR>
-nnoremap <Tab>G :GFiles<CR>
+nnoremap <silent> <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
+nnoremap <Tab>f :Files<space>
+nnoremap <Tab>g :GFiles<space>
+
+nnoremap <silent> <Tab><Tab> :call fzf#vim#files('', { 'source': agsource, 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [getcwd()]) } )<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-nnoremap <Tab><Enter> :Buffers<CR>
-nnoremap <Tab><Leader> :call fzf#vim#files(expand('%:h'), { 'source': "ag -g '' --path-to-ignore ".getcwd()."/.ignore  " } )<CR>
+nnoremap <silent> <Tab><Enter> :Buffers<CR>
+
+" search files to the current directory of the opened file
+" nnoremap <Tab><Tab> :call fzf#vim#files( expand('%:h'), { 'source': s:agsource } )<CR>
+nnoremap <silent> <Tab><Leader> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]) } ) <CR>
 
 " - app
 " nnoremap <Tab>p :call fzf#vim#files('app')<CR>
-nnoremap <Tab>p :call fzf#vim#files('app', { 'source': "ag -g '' --ignore-dir assets"  } )<CR>
+" nnoremap <Tab>p :call fzf#vim#files('app', { 'source': "ag -g '' --ignore-dir assets"  } )<CR>
+nnoremap <silent> <Tab>p :call fzf#vim#files('app', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app']) } )<CR>
 
 " - models
-nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
+" nnoremap <Tab>m :call fzf#vim#files('app/models')<CR>
+nnoremap <silent> <Tab>m :call fzf#vim#files('app/models', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/models']) } )<CR>
 
 " - views
-nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
+" nnoremap <Tab>v :call fzf#vim#files('app/views')<CR>
+nnoremap <silent> <Tab>v :call fzf#vim#files('app/views', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/views']) } )<CR>
 
 " - controllers
-nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
+" nnoremap <Tab>c :call fzf#vim#files('app/controllers')<CR>
+nnoremap <silent> <Tab>c :call fzf#vim#files('app/controllers', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/controllers']) } )<CR>
 
 " find file current word in project directories
-nnoremap <Tab>f :call fzf#vim#files('', { 'source': "ag -g '' --path-to-ignore ".getcwd()."/.ignore  " } )<CR>
+" nnoremap <silent> <Tab>f :call fzf#vim#files('', { 'source': agsource, 'options': '-q '.expand('<cword>') } )<CR>
 
 " find file selected text in project directories
-vnoremap <Tab>f :call fzf#vim#files('', { 'source': "ag -g '' --path-to-ignore ".getcwd()."/.ignore  ", 'options': '-q '.GetVisualSelection() } )<CR>
+vnoremap <silent> <Tab>f :call fzf#vim#files('', { 'source': agsource, 'options': '-q '.GetVisualSelection() } )<CR>
 
 " --------------------
 "  Code Search using space as suffix
 " --------------------
 
 " code search in current open file
-nnoremap <space><space> :call fzf#vim#buffer_lines()<CR>
+nnoremap <silent> <space><space> :call fzf#vim#buffer_lines()<CR>
 
 " code search selected text on current file
-vnoremap <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
+vnoremap <silent> <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
 " code search in all opened files
-nnoremap <tab><space> :call fzf#vim#lines()<CR>
+nnoremap <silent> <tab><space> :call fzf#vim#lines()<CR>
 
 " code search selected text in all opened files
-vnoremap <tab><space> :call fzf#vim#lines( GetVisualSelection() )<CR>
+vnoremap <silent> <tab><space> :call fzf#vim#lines( GetVisualSelection() )<CR>
 
 " code search all project files with similar extensions
-nnoremap <enter><space> :call AgSimilarFile(0)<CR>
+nnoremap <silent> <enter><space> :call AgSimilarFile(0)<CR>
 
 " code search selected text, all project files with similar extensions
-vnoremap <enter><space> :call AgSimilarFile(1)<CR>
+vnoremap <silent> <enter><space> :call AgSimilarFile(1)<CR>
 
 " code search on current word to all files in current directory
-nnoremap <leader><space> :call AgProjectDirectories(0)<CR>
+nnoremap <silent> <leader><space> :call AgProjectDirectories(0)<CR>
 
 " code search selected text to all files in current directory
-vnoremap <leader><space> :call AgProjectDirectories(1)<CR>
+vnoremap <silent> <leader><space> :call AgProjectDirectories(1)<CR>
 
 " https://github.com/junegunn/fzf.vim/issues/27#issuecomment-185761539
 " AgIn dir query
@@ -465,6 +470,11 @@ nnoremap <Tab>wh <C-w>h<CR>
 
 " --------------------
 
+" remove trailing spaces
+autocmd BufWritePre * %s/\s\+$//e
+" convert all tab to spaces on save
+autocmd BufWritePre * :retab
+
 " *********************************************************
 endif " VIMSLIM END
 " *********************************************************
@@ -477,10 +487,6 @@ endif " VIMSLIM END
 imap <c-c> <ESC>
 vmap <c-c> <ESC>
 " vmap jk <ESC>
-
-"make < > shifts keep selection
-vnoremap < <gv
-vnoremap > >gv
 
 " https://stackoverflow.com/a/6923282/3288608
 cnoremap <C-a> <Home>
@@ -514,8 +520,8 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 set omnifunc=syntaxcomplete#Complete
 
 " shortcut for nerd comment
-nnoremap <silent> <leader><leader> :call NERDComment('n', 'Toggle')<CR>
-vnoremap <silent> <leader><leader> :call NERDComment('v', 'Toggle')<CR>
+nnoremap <silent> <BS><BS> :call NERDComment('n', 'Toggle')<CR>
+vnoremap <silent> <BS><BS> :call NERDComment('v', 'Toggle')<CR>
 
 " =====================
 " Settings
@@ -569,8 +575,6 @@ set shellcmdflag=-c
 colorscheme Tomorrow-Night-Eighties
 highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
-" highlight CursorLineNR term=NONE cterm=NONE ctermfg=Black ctermbg=Yellow gui=NONE guifg=Yellow guibg=NONE
-" highlight Cursor guifg=white guibg=black ctermfg=Black ctermbg=Yellow
 highlight Sneak ctermfg=235 ctermbg=222
 
 set scrolloff=10

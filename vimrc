@@ -488,6 +488,9 @@ imap <c-c> <ESC>
 vmap <c-c> <ESC>
 " vmap jk <ESC>
 
+" repeat last colon command
+nnoremap `` q:k<CR>
+
 " https://stackoverflow.com/a/6923282/3288608
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>

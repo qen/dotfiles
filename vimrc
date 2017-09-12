@@ -336,7 +336,8 @@ nnoremap <c-q> <Esc>
 " Tab shortcut to operate on files
 " --------------------
 
-let agsource = "ag -g '' --path-to-ignore ".getcwd()."/.ignore "
+let agsource  = "ag -g '' --path-to-ignore ".getcwd()."/.ignore "
+let fzfwindow = "vertical botright 140new"
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
@@ -347,37 +348,33 @@ nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <Tab>f :Files<space>
 nnoremap <Tab>g :GFiles<space>
 
-" nnoremap <silent> <Tab><Tab> :call fzf#vim#files('', { 'source': agsource, 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [getcwd()]), 'window': 'vertical leftabove 120new' } )<CR>
-nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': agsource, 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [getcwd()]), 'window': 'vertical leftabove 120new' } )<CR>
+" open current working directory
+nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': agsource, 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [getcwd()]), 'window': fzfwindow } )<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
 " nnoremap <silent> <Tab><Enter> :Buffers<CR>
-nnoremap <silent> <Tab><Enter> :call fzf#vim#buffers('', { 'window': 'vertical leftabove 120new' }) <CR>
+nnoremap <silent> <Tab><Enter> :call fzf#vim#buffers('', { 'window': fzfwindow }) <CR>
 
 " search files to the current directory of the opened file
-" nnoremap <silent> <Tab><Leader> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]), 'window': 'vertical leftabove 120new' } ) <CR>
-nnoremap <silent> <Tab><Tab> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]), 'window': 'vertical leftabove 120new' } ) <CR>
+nnoremap <silent> <Tab><Tab> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]), 'window': fzfwindow } ) <CR>
 
 " - app
-nnoremap <silent> <Tab>p :call fzf#vim#files('app', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app']), 'window': 'vertical leftabove 120new' } )<CR>
+nnoremap <silent> <Tab>p :call fzf#vim#files('app', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app']), 'window': fzfwindow } )<CR>
 
 " - models
-nnoremap <silent> <Tab>m :call fzf#vim#files('app/models', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/models']), 'window': 'vertical leftabove 120new' } )<CR>
+nnoremap <silent> <Tab>m :call fzf#vim#files('app/models', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/models']), 'window': fzfwindow } )<CR>
 
 " - views
-nnoremap <silent> <Tab>v :call fzf#vim#files('app/views', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/views']), 'window': 'vertical leftabove 120new' } )<CR>
+nnoremap <silent> <Tab>v :call fzf#vim#files('app/views', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/views']), 'window': fzfwindow } )<CR>
 
 " - controllers
-nnoremap <silent> <Tab>c :call fzf#vim#files('app/controllers', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/controllers']), 'window': 'vertical leftabove 120new' } )<CR>
+nnoremap <silent> <Tab>c :call fzf#vim#files('app/controllers', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/controllers']), 'window': fzfwindow } )<CR>
 
 " - spec
-nnoremap <silent> <Tab>/ :call fzf#vim#files('spec', { 'options': '--print-query -q '.expand('%:t:r'), 'sink*': function('CreateOrOpenFile', ['spec']), 'window': 'vertical leftabove 120new' } )<CR>
-
-" find file current word in project directories
-" nnoremap <silent> <Tab>f :call fzf#vim#files('', { 'source': agsource, 'options': '-q '.expand('<cword>') } )<CR>
+nnoremap <silent> <Tab>/ :call fzf#vim#files('spec', { 'options': '--print-query -q '.expand('%:t:r'), 'sink*': function('CreateOrOpenFile', ['spec']), 'window': fzfwindow } )<CR>
 
 " find file selected text in project directories
-vnoremap <silent> <Tab>f :call fzf#vim#files('', { 'source': agsource, 'options': '-q '.GetVisualSelection(), 'window': 'vertical leftabove 120new' } )<CR>
+vnoremap <silent> <Tab>f :call fzf#vim#files('', { 'source': agsource, 'options': '-q '.GetVisualSelection(), 'window': fzfwindow } )<CR>
 
 " --------------------
 "  Code Search using space as suffix
@@ -489,7 +486,7 @@ vmap <c-c> <ESC>
 " vmap jk <ESC>
 
 " repeat last colon command
-nnoremap `` q:k<CR>
+" nnoremap `` q:SF<CR>
 
 " https://stackoverflow.com/a/6923282/3288608
 cnoremap <C-a> <Home>
@@ -579,11 +576,12 @@ colorscheme Tomorrow-Night-Eighties
 highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
 highlight Sneak ctermfg=235 ctermbg=222
+" highlight Visual ctermbg=245
+" highlight Visual cterm=reverse
 
 set scrolloff=10
 
-" redifine keyword definition, include dash
-" https://woss.name/articles/vim-iskeyword/
+" redifine keyword definition, include dash, https://woss.name/articles/vim-iskeyword/
 " set iskeyword=@,!,?,48-57,_,192-255,-
 
 " globpath wildignore

@@ -15,12 +15,10 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-
 Plugin 'flazz/vim-colorschemes'
 
 " Vim airline theme
 Plugin 'vim-airline/vim-airline'
-
 Plugin 'vim-airline/vim-airline-themes'
 
 let g:airline_theme='luna'
@@ -316,17 +314,22 @@ nmap <F5> <Plug>(Scalpel)
 set pastetoggle=<F6>
 
 " Copy full path filename with path to clipboard
-nmap <F7> :let @*=expand("%:p")<CR>
+nmap <F7> :let @*=expand("%")<CR>
+nmap <F8> :let @*=expand("%:p")<CR>
 
 " =====================
 " Keyboard Setup
 " =====================
 
+" reload current file
+nnoremap <Leader>r :e!<CR>
+
 " reload vimrc
-nnoremap <Leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
+nnoremap <Leader>R :so $MYVIMRC<CR>:nohlsearch<CR>
 
 " save file
-noremap <leader>w :w<CR>
+nnoremap <silent> <leader>w :w<CR>
+inoremap <silent> <leader>w <ESC>:w<CR>
 
 " unbind shift-k, its annoying
 map <S-k> <Nop>
@@ -352,11 +355,10 @@ nnoremap <Tab>g :GFiles<space>
 nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': agsource, 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [getcwd()]), 'window': fzfwindow } )<CR>
 
 " search files to all open buffers, and current files in the open buffer directory
-" nnoremap <silent> <Tab><Enter> :Buffers<CR>
-nnoremap <silent> <Tab><Enter> :call fzf#vim#buffers('', { 'window': fzfwindow }) <CR>
+nnoremap <silent> <Tab><Tab> :call fzf#vim#buffers('', { 'window': fzfwindow }) <CR>
 
 " search files to the current directory of the opened file
-nnoremap <silent> <Tab><Tab> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]), 'window': fzfwindow } ) <CR>
+nnoremap <silent> <Tab><Enter> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]), 'window': fzfwindow } ) <CR>
 
 " - app
 nnoremap <silent> <Tab>p :call fzf#vim#files('app', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app']), 'window': fzfwindow } )<CR>
@@ -460,10 +462,12 @@ nnoremap <Tab>wh <C-w>h<CR>
 "  Vimdiff fugitive
 " --------------------
 
-nnoremap <BS>r :diffget REMOTE
-nnoremap <BS>R :%diffget REMOTE
-nnoremap <BS>l :diffget LOCAL
-nnoremap <BS>L :%diffget LOCAL
+nnoremap <BS>r :diffget REMOTE<CR>
+nnoremap <BS>R :%diffget REMOTE<CR>
+nnoremap <BS>l :diffget LOCAL<CR>
+nnoremap <BS>L :%diffget LOCAL<CR>
+nnoremap <BS>2 :diffget //2<CR>
+nnoremap <BS>3 :diffget //3<CR>
 
 " --------------------
 

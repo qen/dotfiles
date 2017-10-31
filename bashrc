@@ -1,4 +1,10 @@
 
+# https://github.com/bobthecow/git-flow-completion/wiki/Install-Bash-git-completion
+# if [ -f `brew --prefix`/etc/bash_completion ]; then
+#     . `brew --prefix`/etc/bash_completion
+# fi
+[ -f `brew --prefix`/etc/bash_completion ] && source `brew --prefix`/etc/bash_completion
+
 export EDITOR='nvim'
 
 # docker rmi $(docker images -a | grep none | awk '{print $3}')
@@ -22,15 +28,16 @@ alias vimf='nvim +Files'
 alias nvimf='nvim +Files'
 alias svim='VIMSLIM="yes" nvim'
 
-# prompt
-# export PS1="\[\033[1;33m\]\W\[\033[0m\] \$ "
-
 # https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
-export GIT_PS1_SHOWCOLORHINTS='1'
+# GIT_PS1_SHOWUNTRACKEDFILES='1'
+# GIT_PS1_DESCRIBE_STYLE='branch'
+# GIT_PS1_SHOWUPSTREAM='auto'
+# GIT_PS1_SHOWSTASHSTATE='true'
+GIT_PS1_SHOWCOLORHINTS='true'
+GIT_PS1_SHOWDIRTYSTATE='true'
 source ~/.bash-colors.sh
 source ~/.bash-git-prompt.sh
 
-export PS1="\[$bldylw\]\W\[$txtcyn\]$(__git_ps1 " (%s)")\[$txtrst\] \$ "
+# export PS1="\[$txtgrn\]"$PS1"\n\[$bldylw\]\W\[$txtrst\] \$ "
 export SUDO_PS1="\[$txtred\]\u@\h\[$txtrst\] \[$bldylw\]\w \[$txtrst\]\$ "
-PROMPT_COMMAND='__git_ps1 "\[$bldylw\]\W\[$txtrst\]" " \\\$ " "(%s) "'
-
+export PROMPT_COMMAND='__git_ps1 "\[$bldylw\]\W\[$txtrst\]" " \\\$ " "(%s)"'

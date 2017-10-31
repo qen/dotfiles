@@ -258,6 +258,7 @@ __git_ps1_colorize_gitstring ()
   if [ $detached = no ]; then
     branch_color="$bldblk"
     git diff --no-ext-diff --quiet || branch_color="$ok_color"
+    git diff --no-ext-diff --cached --quiet || branch_color="$ok_color"
   else
     branch_color="$bad_color"
   fi
@@ -480,8 +481,8 @@ __git_ps1 ()
     if [ -n "${GIT_PS1_SHOWDIRTYSTATE-}" ] &&
        [ "$(git config --bool bash.showDirtyState)" != "false" ]
     then
-      git diff --no-ext-diff --quiet || w="*"
-      git diff --no-ext-diff --cached --quiet || i="+"
+      git diff --no-ext-diff --quiet || w=""
+      git diff --no-ext-diff --cached --quiet || i=""
       if [ -z "$short_sha" ] && [ -z "$i" ]; then
         i="#"
       fi
@@ -526,7 +527,8 @@ __git_ps1 ()
     else
       printf -v gitstring -- "$printf_format" "$gitstring"
     fi
-    PS1="$gitstring$ps1pc_start$ps1pc_end"
+    PS1="$gitstring\n$ps1pc_start$ps1pc_end"
+    # printf "$gitstring$ps1pc_start$ps1pc_end"
   else
     printf -- "$printf_format" "$gitstring"
   fi

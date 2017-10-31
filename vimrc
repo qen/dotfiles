@@ -21,32 +21,29 @@ Plugin 'flazz/vim-colorschemes'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 
-let g:airline_theme='luna'
-" let g:airline_theme='base16_eighties'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#left_sep = ' '
+let g:airline_theme                           = 'luna'
+let g:airline_powerline_fonts                 = 1
+let g:airline#extensions#tabline#enabled      = 1
+let g:airline#extensions#tabline#left_sep     = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tmuxline#enabled = 0
-let g:tmuxline_theme = 'airline'
-" Enable the list of buffers
-let g:airline#extensions#tabline#enabled = 1
-" Show just the filename
-let g:airline#extensions#tabline#fnamemod = ':t'
+let g:airline#extensions#tmuxline#enabled     = 0
+let g:tmuxline_theme                          = 'airline'
+let g:airline#extensions#tabline#enabled      = 1 " Enable the list of buffers
+let g:airline#extensions#tabline#fnamemod     = ':t' " Show just the filename
 
 " FZF
 Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
+Plugin 'junegunn/vim-emoji'
 
 Plugin 'pangloss/vim-javascript'
 
 Plugin 'mxw/vim-jsx'
 
 Plugin 'Yggdroot/indentLine'
-let g:indentLine_enabled = 1
-" Vim
+let g:indentLine_enabled    = 1
 let g:indentLine_color_term = 237
-let g:indentLine_char = '¦'
+let g:indentLine_char       = '¦'
 
 Plugin 'slim-template/vim-slim.git'
 
@@ -65,8 +62,7 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'jistr/vim-nerdtree-tabs'
 nmap <silent> <leader>t :NERDTreeTabsToggle<CR>
 let g:nerdtree_tabs_open_on_console_startup = 0
-" enable line numbers
-let NERDTreeShowLineNumbers=1
+let NERDTreeShowLineNumbers                 = 1 " enable line numbers
 
 Plugin 'chr4/nginx.vim'
 au BufRead,BufNewFile *nginx/*.conf set ft=nginx
@@ -79,12 +75,9 @@ set nofoldenable
 let g:vim_markdown_conceal = 0
 
 Plugin 'scrooloose/nerdcommenter'
-" Enable trimming of trailing whitespace when uncommenting
-let g:NERDTrimTrailingWhitespace = 1
-" Add spaces after comment delimiters by default
-let g:NERDSpaceDelims = 1
-" disable default mapping https://github.com/scrooloose/nerdcommenter/blob/master/plugin/NERD_commenter.vim#L3009
-let g:NERDCreateDefaultMappings = 0
+let g:NERDTrimTrailingWhitespace = 1 " Enable trimming of trailing whitespace when uncommenting
+let g:NERDSpaceDelims            = 1 " Add spaces after comment delimiters by default
+let g:NERDCreateDefaultMappings  = 0 " disable default mapping https://github.com/scrooloose/nerdcommenter/blob/master/plugin/NERD_commenter.vim#L3009
 
 Plugin 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
@@ -117,8 +110,7 @@ map T <Plug>Sneak_T
 " let g:syntastic_check_on_wq = 0
 
 " Plugin 'Shougo/deoplete.nvim'
-" " enable at startup
-" let g:deoplete#enable_at_startup = 1
+" let g:deoplete#enable_at_startup = 1 " enable at startup
 " " deoplete tab-complete  https://www.gregjs.com/vim/2016/configuring-the-deoplete-asynchronous-keyword-completion-plugin-with-tern-for-vim/
 " inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 " Plugin 'fishbullet/deoplete-ruby'
@@ -530,6 +522,7 @@ vnoremap <silent> <BS><BS> :call NERDComment('v', 'Toggle')<CR>
 " =====================
 " Settings
 " =====================
+"
 
 syntax on
 filetype plugin indent on    " required

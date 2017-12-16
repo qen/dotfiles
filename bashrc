@@ -1,8 +1,5 @@
 
 # https://github.com/bobthecow/git-flow-completion/wiki/Install-Bash-git-completion
-# if [ -f `brew --prefix`/etc/bash_completion ]; then
-#     . `brew --prefix`/etc/bash_completion
-# fi
 [ -f `brew --prefix`/etc/bash_completion ] && source `brew --prefix`/etc/bash_completion
 
 export EDITOR='nvim'
@@ -24,8 +21,6 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 alias ll='ls -alhG'
 alias vim='nvim'
-alias vimf='nvim +Files'
-alias nvimf='nvim +Files'
 alias svim='VIMSLIM="yes" nvim'
 
 # https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
@@ -38,6 +33,5 @@ GIT_PS1_SHOWDIRTYSTATE='true'
 source ~/.bash-colors.sh
 source ~/.bash-git-prompt.sh
 
-# export PS1="\[$txtgrn\]"$PS1"\n\[$bldylw\]\W\[$txtrst\] \$ "
 export SUDO_PS1="\[$txtred\]\u@\h\[$txtrst\] \[$bldylw\]\w \[$txtrst\]\$ "
 export PROMPT_COMMAND='__git_ps1 "\[$bldylw\]\W\[$txtrst\]" " \\\$ " "(%s)"'

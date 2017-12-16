@@ -71,7 +71,6 @@ au BufRead,BufNewFile *nginx/*.conf set ft=nginx
 Plugin 'godlygeek/tabular'
 
 Plugin 'plasticboy/vim-markdown'
-set nofoldenable
 let g:vim_markdown_conceal = 0
 
 Plugin 'scrooloose/nerdcommenter'
@@ -332,7 +331,9 @@ nnoremap <c-q> <Esc>
 " --------------------
 
 let agsource  = "ag -g '' --path-to-ignore ".getcwd()."/.ignore "
-let fzfwindow = "vertical botright 140new"
+let fzfwindow = "30new" " vertical botright 140new
+let g:fzf_layout = { 'window': '30new' }
+
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
@@ -428,27 +429,11 @@ vnoremap RT :call CodeReplaceSelection(0, 'selected_word')<CR>
 " code formating, using Tabularize, must have an existing selected text
 " http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
 vnoremap FF :Tab/
-vnoremap F= :Tab/=<CR>
-vnoremap F: :Tab/:\zs<CR>
-
-" --------------------
-" Tab w window navigation stuff
-" --------------------
-
-" window navigation uses Tab w
-nnoremap <Tab>wv :vsplit<CR>
-
-" cycle to window
-nnoremap <Tab>ww <C-w>w<CR>
-
-" close window
-nnoremap <Tab>wq :silent call ConfirmQuit(0)<CR>
-
-" next window
-nnoremap <Tab>wl <C-w>l<CR>
-
-" prev window
-nnoremap <Tab>wh <C-w>h<CR>
+vnoremap F= :Tab/^[^=]*\zs=<CR>
+" vnoremap F: :Tab/^[^:]*\zs:<CR>
+" vnoremap F: :Tab/^[^:]*\zs:/r0<CR>
+vnoremap F: :Tab/: \zs<CR>
+vnoremap F, :Tab/,\zs<CR>
 
 " --------------------
 "  Vimdiff fugitive
@@ -519,6 +504,9 @@ set omnifunc=syntaxcomplete#Complete
 nnoremap <silent> <BS><BS> :call NERDComment('n', 'Toggle')<CR>
 vnoremap <silent> <BS><BS> :call NERDComment('v', 'Toggle')<CR>
 
+" select text till end of line
+vnoremap . g_
+
 " =====================
 " Settings
 " =====================
@@ -560,6 +548,13 @@ set softtabstop=2
 set smarttab
 set expandtab
 
+" code folding, :help usr_28 zi(toggle enable/disable folding)
+set foldcolumn=1
+" set foldmethod=indent " zO(open) zC(lose) zi(toggle folding)
+" set nofoldenable
+set foldmethod=syntax " za(open/close folding) zO(open) zC(lose)
+set foldlevel=1 " zr reduce folding, zm increase folding
+
 " Split settings
 set splitbelow
 set splitright
@@ -576,7 +571,7 @@ highlight Sneak ctermfg=235 ctermbg=222
 " highlight Visual ctermbg=245
 " highlight Visual cterm=reverse
 
-set scrolloff=10
+set scrolloff=5
 
 " redifine keyword definition, include dash, https://woss.name/articles/vim-iskeyword/
 " set iskeyword=@,!,?,48-57,_,192-255,-
@@ -588,3 +583,6 @@ if filereadable($HOME.'/.agignore')
 else
   set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
 endif
+
+set clipboard=unnamed
+

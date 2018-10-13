@@ -1,8 +1,12 @@
 
 # https://github.com/bobthecow/git-flow-completion/wiki/Install-Bash-git-completion
+# if [ -f `brew --prefix`/etc/bash_completion ]; then
+#     . `brew --prefix`/etc/bash_completion
+# fi
 [ -f `brew --prefix`/etc/bash_completion ] && source `brew --prefix`/etc/bash_completion
 
 export EDITOR='nvim'
+# export EDITOR='vim'
 
 # docker rmi $(docker images -a | grep none | awk '{print $3}')
 # docker rm $(docker ps -a -f status=exited -q)
@@ -11,6 +15,8 @@ export EDITOR='nvim'
 # docker ps --filter status=dead --filter status=exited -aq | xargs docker rm
 # docker system info
 # docker system df
+# ag -l -g 'orig' | xargs rm
+# openssl rand -base64 16 | colrm 17
 
 # https://github.com/junegunn/fzf#tips
 # ag wildcard ignore is defined in ~/.agignore
@@ -19,8 +25,12 @@ export FZF_DEFAULT_COMMAND="ag -g ''"
 # To apply the command to CTRL-T as well
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
+export FZF_DEFAULT_OPTS="-i"
+
 alias ll='ls -alhG'
 alias vim='nvim'
+# alias vimf='nvim +Files'
+# alias nvimf='nvim +Files'
 alias svim='VIMSLIM="yes" nvim'
 
 # https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
@@ -33,5 +43,6 @@ GIT_PS1_SHOWDIRTYSTATE='true'
 source ~/.bash-colors.sh
 source ~/.bash-git-prompt.sh
 
+# export PS1="\[$txtgrn\]"$PS1"\n\[$bldylw\]\W\[$txtrst\] \$ "
 export SUDO_PS1="\[$txtred\]\u@\h\[$txtrst\] \[$bldylw\]\w \[$txtrst\]\$ "
 export PROMPT_COMMAND='__git_ps1 "\[$bldylw\]\W\[$txtrst\]" " \\\$ " "(%s)"'

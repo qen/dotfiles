@@ -1,3 +1,4 @@
+" %s/\"\([^"]*\)\"/'\1'/g " change double quote to single quote
 " *********************************************************
 if $VIMSLIM==''
 " *********************************************************
@@ -76,7 +77,8 @@ let g:vim_markdown_conceal = 0
 Plugin 'scrooloose/nerdcommenter'
 let g:NERDTrimTrailingWhitespace = 1 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDSpaceDelims            = 1 " Add spaces after comment delimiters by default
-let g:NERDCreateDefaultMappings  = 0 " disable default mapping https://github.com/scrooloose/nerdcommenter/blob/master/plugin/NERD_commenter.vim#L3009
+let g:NERDCreateDefaultMappings  = 1 " disable default mapping https://github.com/scrooloose/nerdcommenter/blob/master/plugin/NERD_commenter.vim#L3009
+let g:NERDCustomDelimiters={ 'javascript': { 'left': '//', 'right': '', 'leftAlt': '{/*', 'rightAlt': '*/}' } }
 
 Plugin 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
@@ -97,24 +99,11 @@ map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 map T <Plug>Sneak_T
 
-" NOT SURE IF I SHOULD ENABLE THIS,
-" doing so would add more plugin per language
-" Plugin 'vim-syntastic/syntastic'
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-
-" Plugin 'Shougo/deoplete.nvim'
-" let g:deoplete#enable_at_startup = 1 " enable at startup
-" " deoplete tab-complete  https://www.gregjs.com/vim/2016/configuring-the-deoplete-asynchronous-keyword-completion-plugin-with-tern-for-vim/
-" inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-" Plugin 'fishbullet/deoplete-ruby'
-
 Plugin 'tpope/vim-fugitive'
+
+Plugin 'mattn/emmet-vim'
+let g:user_emmet_install_global = 0
+autocmd FileType html,css,jsx,php,erb,javascript EmmetInstall
 
 " All of your Plugins must be added before the following line
 call vundle#end()
@@ -122,6 +111,9 @@ call vundle#end()
 " =====================
 " Scripts
 " =====================
+
+" retain cursor position
+" autocmd BufEnter * silent! normal! g;g,zz
 
 " sink function in fzf
 function! CreateOrOpenFile(prefix, files)
@@ -210,11 +202,11 @@ function! AgProjectDirectories(visual) range
 endfunction
 
 " code search to all files limited to the current buffer file extension, ag --list-file-types
-let s:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php', 'haml': '--haml --ruby' }
+let g:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascript': '--js', 'javascript.jsx': '--js', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php', 'haml': '--haml --ruby' }
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
-    let agftype = get(s:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')
+    let agftype = get(g:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')
     call fzf#vim#ag_raw("--path-to-ignore ".getcwd()."/.ignore ".agftype.' '.needle)
   endif
 endfunction
@@ -259,6 +251,21 @@ function! CodeReplaceSelection(range, target) range
     execute ":Scalpel/".target.'/'.replace."/"
   endif
 endfunction
+
+" Zoom / Restore window.
+function! s:ZoomToggle() abort
+  if exists('t:zoomed') && t:zoomed
+    execute t:zoom_winrestcmd
+    let t:zoomed = 0
+  else
+    let t:zoom_winrestcmd = winrestcmd()
+    resize
+    vertical resize
+    let t:zoomed = 1
+  endif
+endfunction
+command! ZoomToggle call s:ZoomToggle()
+nnoremap <silent> <C-W>z :ZoomToggle<CR>
 
 " =====================
 " Function Command
@@ -308,6 +315,22 @@ set pastetoggle=<F6>
 nmap <F7> :let @*=expand("%")<CR>
 nmap <F8> :let @*=expand("%:p")<CR>
 
+" fix mix-indent
+nmap <F9> mzgg=G`z
+
+" http://dhruvasagar.com/2013/03/28/vim-better-foldtext
+function! NeatFoldText()
+  let line = ' ' . substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g') . ' '
+  let lines_count = v:foldend - v:foldstart + 1
+  let lines_count_text = '| ' . printf("%10s", lines_count . ' lines') . ' |'
+  let foldchar = matchstr(&fillchars, 'fold:\zs.')
+  let foldtextstart = strpart('+' . repeat(foldchar, v:foldlevel*2) . line, 0, (winwidth(0)*2)/3)
+  let foldtextend = lines_count_text . repeat(foldchar, 8)
+  let foldtextlength = strlen(substitute(foldtextstart . foldtextend, '.', 'x', 'g')) + &foldcolumn
+  return foldtextstart . repeat(foldchar, winwidth(0)-foldtextlength) . foldtextend
+endfunction
+set foldtext=NeatFoldText()
+
 " =====================
 " Keyboard Setup
 " =====================
@@ -320,57 +343,75 @@ nnoremap <Leader>R :so $MYVIMRC<CR>:nohlsearch<CR>
 
 " save file
 nnoremap <silent> <leader>w :w<CR>
-inoremap <silent> <leader>w <ESC>:w<CR>
+" inoremap <silent> <leader>w <ESC>:w<CR>
 
 " unbind shift-k, its annoying
 map <S-k> <Nop>
-nnoremap <c-q> <Esc>
+
+function! s:QuickFolder(...)
+  let g:quickfolder = a:1
+  if a:1 == ''
+    call inputsave()
+    let g:quickfolder = fnamemodify(input("Quick Folder: ", expand('%:h'), "dir"), ':h')
+    call inputrestore()
+  endif
+  call fzf#vim#files(g:quickfolder, { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [g:quickfolder]) } )
+endfunction
+command! -nargs=* -complete=dir -complete=dir QuickFolder call s:QuickFolder(<q-args>)
+nnoremap <c-\> :QuickFolder<space><C-R>=quickfolder<CR>
+
+" https://github.com/junegunn/fzf.vim/issues/27#issuecomment-185761539
+" AgIn dir query
+function! s:AgIn(...)
+  call fzf#vim#ag_raw(join(a:000[1:]).' '.a:1)
+endfunction
+command! -nargs=+ -complete=dir AgIn call s:AgIn(<f-args>)
+nnoremap <c-space> :AgIn<space><C-R>=quickfolder<CR>
 
 " --------------------
 " Tab shortcut to operate on files
 " --------------------
 
-let agsource  = "ag -g '' --path-to-ignore ".getcwd()."/.ignore "
-let fzfwindow = "30new" " vertical botright 140new
+let agsource     = "ag -g '' --path-to-ignore ".getcwd()."/.ignore "
+let fzfwindow    = "30new" " vertical botright 140new
 let g:fzf_layout = { 'window': '30new' }
+let quickfolder  = expand('%:h')
 
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
 nnoremap <Tab>l :bnext!<CR>
+nnoremap <Tab>j :b#<CR>
 nnoremap <Tab>q :bd!<CR>
 
 " open files
-nnoremap <Tab>e :edit <C-R>=fnamemodify(@%, ':h')<CR>/
-nnoremap <Tab>f :Files<space>
-nnoremap <Tab>g :GFiles<space>
+nnoremap <c-g> :GFiles<space>
+nnoremap <c-o> :Files <C-R>=fnamemodify(@%, ':h')<CR>/
+nnoremap <c-n> :e <C-R>=fnamemodify(@%, ':h')<CR>/
 
-" open current working directory
-nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': agsource, 'options': '--print-query', 'sink*': function('CreateOrOpenFile', [getcwd()]), 'window': fzfwindow } )<CR>
-
-" search files to all open buffers, and current files in the open buffer directory
-nnoremap <silent> <Tab><Tab> :call fzf#vim#buffers('', { 'window': fzfwindow }) <CR>
+" open app project files and test
+nnoremap <silent> <Tab>p :call fzf#vim#files('', { 'source': agsource.'app spec', 'options': '--print-query -i', 'window': fzfwindow } )<CR>
 
 " search files to the current directory of the opened file
-nnoremap <silent> <Tab><Enter> :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query", 'sink*': function('CreateOrOpenFile', [ expand('%:h') ]), 'window': fzfwindow } ) <CR>
+nnoremap <silent> <Tab>o :call fzf#vim#files( expand('%:h'), { 'source': agsource, 'options': "--print-query -i", 'window': fzfwindow } ) <CR>
 
-" - app
-nnoremap <silent> <Tab>p :call fzf#vim#files('app', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app']), 'window': fzfwindow } )<CR>
+" - quickfolder
+nnoremap <silent> <Tab><Leader> :call fzf#vim#files(quickfolder, { 'options': '--print-query -i', 'window': fzfwindow } )<CR>
 
-" - models
-nnoremap <silent> <Tab>m :call fzf#vim#files('app/models', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/models']), 'window': fzfwindow } )<CR>
+" search files to all open buffers, and current files in the open buffer directory
+nnoremap <silent> <Tab><Tab> :call fzf#vim#buffers('', { 'options': '--print-query -i', 'window': fzfwindow }) <CR>
 
-" - views
-nnoremap <silent> <Tab>v :call fzf#vim#files('app/views', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/views']), 'window': fzfwindow } )<CR>
+" - react javascript / assets
+nnoremap <silent> <Leader><Leader> :call fzf#vim#files('', { 'source': agsource.'app/javascript app/assets', 'options': '--print-query -i', 'window': fzfwindow } )<CR>
 
-" - controllers
-nnoremap <silent> <Tab>c :call fzf#vim#files('app/controllers', { 'options': '--print-query', 'sink*': function('CreateOrOpenFile', ['app/controllers']), 'window': fzfwindow } )<CR>
+" - mvc
+nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': agsource.'app/models app/controllers app/views', 'options': '--print-query -i', 'window': fzfwindow } )<CR>
 
-" - spec
-nnoremap <silent> <Tab>/ :call fzf#vim#files('spec', { 'options': '--print-query -q '.expand('%:t:r'), 'sink*': function('CreateOrOpenFile', ['spec']), 'window': fzfwindow } )<CR>
+" find file selected text in project directories, limit to file extensions
+vnoremap <silent> <c-f><c-p> :call fzf#vim#files('', { 'source': agsource.get(g:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')." app spec", 'options': '-i -q "'.GetVisualSelection().'"', 'window': fzfwindow } )<CR>
 
-" find file selected text in project directories
-vnoremap <silent> <Tab>f :call fzf#vim#files('', { 'source': agsource, 'options': '-q '.GetVisualSelection(), 'window': fzfwindow } )<CR>
+nnoremap <silent> <c-f><c-p> :call fzf#vim#files('', { 'source': agsource.get(g:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')." app spec", 'options': '-i -q '.expand('%:t:r:r'), 'window': fzfwindow } )<CR>
 
+" nnoremap <silent> <ctrl>n :e <CR>
 " --------------------
 "  Code Search using space as suffix
 " --------------------
@@ -381,30 +422,17 @@ nnoremap <silent> <space><space> :call fzf#vim#buffer_lines()<CR>
 " code search selected text on current file
 vnoremap <silent> <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
-" code search in all opened files
-nnoremap <silent> <tab><space> :call fzf#vim#lines()<CR>
-
-" code search selected text in all opened files
-vnoremap <silent> <tab><space> :call fzf#vim#lines( GetVisualSelection() )<CR>
-
 " code search all project files with similar extensions
-nnoremap <silent> <enter><space> :call AgSimilarFile(0)<CR>
+nnoremap <silent> <c-f><c-space> :call AgSimilarFile(0)<CR>
 
 " code search selected text, all project files with similar extensions
-vnoremap <silent> <enter><space> :call AgSimilarFile(1)<CR>
+vnoremap <silent> <c-f><c-space> :call AgSimilarFile(1)<CR>
 
 " code search on current word to all files in current directory
-nnoremap <silent> <leader><space> :call AgProjectDirectories(0)<CR>
+" nnoremap <silent> <leader><space> :call AgProjectDirectories(0)<CR>
 
 " code search selected text to all files in current directory
-vnoremap <silent> <leader><space> :call AgProjectDirectories(1)<CR>
-
-" https://github.com/junegunn/fzf.vim/issues/27#issuecomment-185761539
-" AgIn dir query
-function! s:ag_in(...)
-  call fzf#vim#ag_raw(join(a:000[1:]).' '.a:1)
-endfunction
-command! -nargs=+ -complete=dir AgIn call s:ag_in(<f-args>)
+" vnoremap <silent> <leader><space> :call AgProjectDirectories(1)<CR>
 
 " --------------------
 "  Find and Replace
@@ -434,11 +462,11 @@ vnoremap F= :Tab/^[^=]*\zs=<CR>
 " vnoremap F: :Tab/^[^:]*\zs:/r0<CR>
 vnoremap F: :Tab/: \zs<CR>
 vnoremap F, :Tab/,\zs<CR>
+vnoremap FM :Tab/from<CR>
 
 " --------------------
 "  Vimdiff fugitive
 " --------------------
-
 nnoremap <BS>r :diffget REMOTE<CR>
 nnoremap <BS>R :%diffget REMOTE<CR>
 nnoremap <BS>l :diffget LOCAL<CR>
@@ -464,6 +492,7 @@ endif " VIMSLIM END
 " additional ESC, on insert and visual mode
 imap <c-c> <ESC>
 vmap <c-c> <ESC>
+nnoremap <c-q> <Esc>
 " vmap jk <ESC>
 
 " repeat last colon command
@@ -511,7 +540,6 @@ vnoremap . g_
 " Settings
 " =====================
 "
-
 syntax on
 filetype plugin indent on    " required
 
@@ -523,7 +551,6 @@ set ruler                       " show the cursor position all the time
 set showcmd                     " display incomplete commands
 set showmode
 set incsearch                   " do incremental searching
-set ruler
 set relativenumber
 set number
 " set mouse=a
@@ -542,18 +569,17 @@ set nowrap
 set confirm
 
 set autoindent                  " always set autoindenting on
+set smarttab
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
-set smarttab
 set expandtab
 
 " code folding, :help usr_28 zi(toggle enable/disable folding)
 set foldcolumn=1
-" set foldmethod=indent " zO(open) zC(lose) zi(toggle folding)
-" set nofoldenable
 set foldmethod=syntax " za(open/close folding) zO(open) zC(lose)
 set foldlevel=1 " zr reduce folding, zm increase folding
+set foldnestmax=5
 
 " Split settings
 set splitbelow
@@ -571,7 +597,7 @@ highlight Sneak ctermfg=235 ctermbg=222
 " highlight Visual ctermbg=245
 " highlight Visual cterm=reverse
 
-set scrolloff=5
+set scrolloff=3
 
 " redifine keyword definition, include dash, https://woss.name/articles/vim-iskeyword/
 " set iskeyword=@,!,?,48-57,_,192-255,-
@@ -585,4 +611,3 @@ else
 endif
 
 set clipboard=unnamed
-

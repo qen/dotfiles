@@ -1,3 +1,8 @@
+[user]
+  name = qen
+  email = qen.empaces@gmail.com
+[github]
+  user = qen
 
 [color]
   ui = auto
@@ -29,7 +34,7 @@
   co = checkout
   df = diff
   lg = log -p
-  lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  lol = log --decorate --pretty=oneline --abbrev-commit
   graph = log --graph --decorate --pretty=oneline --abbrev-commit --all
   ls = ls-files
   release = tag -n1
@@ -51,12 +56,14 @@
   co = checkout
   df = diff
   lg = log -p
-  lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  lol = log --decorate --pretty=oneline --abbrev-commit
   graph = log --graph --decorate --pretty=oneline --abbrev-commit --all
   ls = ls-files
   release = tag -n1
   d = difftool
   tagrev = echo $@
+  changedfiles = diff-tree --no-commit-id --name-only -r
+  yolo = !git commit -am \"$(curl -s whatthecommit.com/index.txt)\"
 
   # http://josephhsu.com/post/2582726215/open-all-modified-files-tracked-by-git-in-default
   edit = !$EDITOR $(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' )
@@ -73,7 +80,8 @@
 # - https://coderwall.com/p/qbtnsw/use-fugitive-as-git-mergetool
 [merge]
   tool = fugitive
-  conflictstyle = diff3
+  ; conflictstyle = diff3
 
 [mergetool "fugitive"]
-  cmd = vim -d -c \"Gvdiff\" \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
+  ; cmd = MERGETOOL="yes" nvim -d -c \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
+  cmd = nvim -d \"$LOCAL\" \"$MERGED\" \"$REMOTE\"

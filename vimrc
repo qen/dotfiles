@@ -157,12 +157,21 @@ let g:indentLine_char       = '¦'
 " forc nginx config
 au BufRead,BufNewFile *nginx/*.conf set ft=nginx
 " force ruby for .jbuilder
-au BufRead,BufNewFile *.jbuilder set ft=ruby
+au BufRead,BufNewFile Guardfile,Gemfile,*.jbuilder set ft=ruby
 " force yaml for .yml
 au BufRead,BufNewFile *.yml set ft=yaml
 " forc Dockerfile
 au BufRead,BufNewFile Dockerfile.* set ft=dockerfile
 
+Plug 'jparise/vim-graphql'
+
+Plug 'thoughtbot/vim-rspec'
+Plug 'tpope/vim-dispatch'
+let g:rspec_command = "Dispatch bin/rspec {spec}"
+" let g:rspec_command = "!Dispatch bundle exec rspec -I . {spec}"
+let g:rspec_runner = "os_x_iterm2"
+map <Leader>t :call RunCurrentSpecFile()<CR>
+map <Leader>s :call RunNearestSpec()<CR>
 " Initialize plugin system
 call plug#end()
 " --------------------------------------------------------------------------------
@@ -172,6 +181,7 @@ call plug#end()
 nmap <leader>gd <Plug>(coc-definition)
 nmap <leader>gr <Plug>(coc-references)
 nmap <leader>gb :Gblame<CR>
+nmap <leader>gh :History<CR>
 
 " gruvbox https://github.com/morhetz/gruvbox/wiki/Usage
 nnoremap <silent> [oh :call gruvbox#hls_show()<CR>
@@ -193,7 +203,7 @@ let agsource = "ag -g ''".appignore
 
 let appmvc    = ''
 let appassets = ''
-let appspec   = 'app spec'
+let appspec   = 'app spec jest features'
 if filereadable(getcwd().'/.appfolders')
   let appfolders = readfile(getcwd().'/.appfolders')
   if (get(appfolders, 0, -1) >= 0) | let appmvc    = appfolders[0] | endif
@@ -397,34 +407,58 @@ function! RelativeParentFileSearch(path)
     let parent = join(folders[0:1], '/')
     let query  = join(folders[2:], '/').'/'
   endif
+
+  " let filename = fnamemodify(expand('%:t'), ':r')
+  " if filename == 'index'
+  "   let query  = join(folders[2:-2], '/').'/'
+  " endif
+
   call fzf#vim#files(parent, { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
 endfunction
 
-function! SimilarFilenameSearch()
-  let query = fnamemodify(expand('%:t'), ':r')
-  if query == 'index'
-    let query = expand('%:h:t')
+function! SimilarFilenameSearch(visualrange)
+  if a:visualrange == '0'
+    let query = fnamemodify(expand('%:t'), ':r')
+    if query == 'index'
+      let query = expand('%:h:t')
+    endif
+  else
+    let query = GetVisualSelection()
   endif
-  call fzf#vim#files('', { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
+
+  call fzf#vim#files('', { 'source': AgSourceSimilar(), 'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
 endfunction
 
-let g:ag_known_file_types = { 'ruby': '--ruby --rake', 'javascriptreact': '--js --css --sass', 'javascript': '--js --css --sass', 'javascript.jsx': '--js --css --sass', 'css': '--css --sass', 'scss': '--css --sass', 'php': '--php', 'haml': '--haml --ruby', 'markdown': '--md' }
+let g:ag_known_file_types = {
+  \ 'ruby'            : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|feature|js|jsx)$"',
+  \ 'yaml'            : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|feature|js|jsx|yml)$"',
+  \ 'eruby.yaml'      : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|feature|js|jsx|yml)$"',
+  \ 'slim'            : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|js|jsx)$"',
+  \ 'javascriptreact' : ' "\.(js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$"',
+  \ 'javascript'      : ' "\.(js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$"',
+  \ 'javascript.jsx'  : ' "\.(js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$"',
+  \ 'css'             : ' "\.(css|sass|scss|js|jsx|rb|jbuilder|json|slim|erb)$"',
+  \ 'scss'            : ' "\.(css|sass|scss|js|jsx|rb|jbuilder|json|slim|erb)$"',
+  \ 'php'             : ' "\.(php)$"',
+  \ 'haml'            : ' "\.(slim|jbuilder|json|erb|haml|rb|rake|js|jsx|css|sass|scss)$"',
+  \ 'markdown'        : ' "\.(md|rb)$"' }
+
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
-    let agftype = get(g:ag_known_file_types, &ft, '-G "\.('. expand('%:e') .')$"')
-    call fzf#vim#ag_raw(g:appignore.agftype.' '.needle)
+    let agftype = get(g:ag_known_file_types, &ft, ' "\.('. expand('%:e') .')$"')
+    call fzf#vim#ag_raw(g:appignore.' -G '.agftype.' '.needle)
   endif
 endfunction
 
 function! AgSourceSimilar()
   let agftype = get(g:ag_known_file_types, &ft, '')
   if agftype == ''
-    let agftype = '-g "\.('. expand('%:e') .')$" '
-  else
-    let agftype = agftype. " -g '' "
+    let agftype = ' "\.('. expand('%:e') .'|js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$" '
   endif
-  return "ag ".agftype.g:appignore
+
+  " globpath('app', '*')
+  return "ag -g ".agftype." ".g:appignore
 endfunction
 
 " https://stackoverflow.com/a/6271254/3288608
@@ -486,7 +520,8 @@ nnoremap <c-f><c-p> :Files <C-R>=fnamemodify(@%, ':h')<CR>/
 " nnoremap <c-f><c-p> :Files<space>
 nnoremap <c-f><c-g> :GFiles<CR>
 " search similar file name
-nnoremap <c-f><c-f> :call SimilarFilenameSearch()<CR>
+nnoremap <c-f><c-f> :call SimilarFilenameSearch('0')<CR>
+vnoremap <c-f><c-f> :call SimilarFilenameSearch( GetVisualSelection() )<CR>
 
 " search files to all OPENED files/buffers
 nnoremap <silent> <Tab>o :Buffers <CR>
@@ -497,7 +532,7 @@ nnoremap <silent> <S-Tab><S-Tab> :call RelativeParentFileSearch('%:h:h')<CR>
 
 " - app mvc
 nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc, 'options': '--print-query -i' } )<CR>
-nnoremap <silent> <s-f><s-f> :call fzf#vim#files('', { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(fnamemodify(expand('%:t'), ':r')).'"' } )<CR>
+" nnoremap <silent> <s-f><s-f> :call fzf#vim#files('', { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(fnamemodify(expand('%:t'), ':r')).'"' } )<CR>
 
 " - app react javascript / assets
 nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets, 'options': '--print-query -i' } )<CR>
@@ -510,10 +545,10 @@ nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().ap
 " --------------------
 
 " code search in current open file
-nnoremap <silent> <c-space> :call fzf#vim#buffer_lines()<CR>
-nnoremap <silent> <space><space> :call fzf#vim#buffer_lines( expand('<cword>') )<CR>
+nnoremap <silent> <space><space> :call fzf#vim#buffer_lines()<CR>
+nnoremap <silent> <c-space> :call fzf#vim#buffer_lines( expand('<cword>') )<CR>
 " nnoremap <silent> <space><space> :echom "normal /" . expand('<cword>') . "/e+1\<cr>"
-vnoremap <silent> <space><space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
+vnoremap <silent> <c-space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
 " code search all project files with similar extensions
 " nnoremap <silent> <c-f><space> :call AgSimilarFile(0)<CR>

@@ -34,14 +34,35 @@ Plug 'tpope/vim-rails'
 Plug 'airblade/vim-gitgutter'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'vim-ruby/vim-ruby'
-Plug 'pangloss/vim-javascript'
-" Plugin 'mxw/vim-jsx'
+" Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
 Plug 'yuezk/vim-js'
 Plug 'maxmellon/vim-jsx-pretty'
 Plug 'chr4/nginx.vim'
 Plug 'plasticboy/vim-markdown'
-Plug 'tpope/vim-endwise'
-Plug 'alvan/vim-closetag'
+" Plug 'tpope/vim-endwise'
+" Plug 'alvan/vim-closetag'
+
+" Plug 'christianchiarulli/nvcode-color-schemes.vim'
+Plug 'Mofiqul/dracula.nvim'
+Plug 'projekt0n/github-nvim-theme'
+Plug 'nxvu699134/vn-night.nvim'
+Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
+" Plug 'nvim-treesitter-endwise'
+Plug 'theHamsta/nvim-treesitter-pairs'
+Plug 'andymass/vim-matchup'
+Plug 'windwp/nvim-ts-autotag'
+Plug 'nvim-treesitter/nvim-treesitter-context'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+" :TSInstall javascript html json ruby yaml dockerfile sql markdown bash graphql css regex scss
+
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+Plug 'nvim-treesitter/nvim-treesitter-refactor'
+
+" Plug 'drybalka/tree-climber.nvim'
+" Plug 'ziontee113/syntax-tree-surfer'
+" Plug 'phaazon/hop.nvim'
+" Plug 'mfussenegger/nvim-treehopper'
 let g:no_ruby_maps = 0
 let g:vim_markdown_conceal = 0
 let g:jsx_ext_required = 0
@@ -101,8 +122,9 @@ Plug 'tpope/vim-surround'
 let g:surround_no_insert_mappings = 0
 set timeout timeoutlen=3000 ttimeoutlen=100
 
-Plug 'jiangmiao/auto-pairs'
-let g:AutoPairsFlyMode = 1
+Plug 'windwp/nvim-autopairs'
+" Plug 'jiangmiao/auto-pairs'
+" let g:AutoPairsFlyMode = 1
 
 Plug 'justinmk/vim-sneak'
 " let g:sneak#s_next = 1
@@ -124,12 +146,12 @@ autocmd FileType html,css,jsx,php,erb,javascript,javascript.jsx EmmetInstall
 
 " ctags --languages=ruby -R -f ./.git/tags.rb .
 " ctags-ruby
-autocmd BufEnter *.rb set tags=.git/guttentags;,.git/tags.rb
+" autocmd BufEnter *.rb set tags=.guttentags;,.git/tags.rb
 " autocmd BufEnter *.rb let g:gutentags_ctags_tagfile='.git/tags.rb'
 
 " ctags --languages=javascript -R -f ./.git/tags.js .
 " ctags-js
-autocmd BufEnter *.jsx,*.js set tags=.git/guttentags;,.git/tags.js
+" autocmd BufEnter *.jsx,*.js set tags=.guttentags;,.git/tags.js
 "
 " also see ~/.ctags config file
 " debug tagfiles used :echo tagfiles()
@@ -142,17 +164,19 @@ autocmd BufEnter *.jsx,*.js set tags=.git/guttentags;,.git/tags.js
 " :GutentagsUpdate
 " :GutentagsUpdate!
 "
-Plug 'https://github.com/ludovicchabant/vim-gutentags'
-set statusline+=%{gutentags#statusline()}
-let g:gutentags_enabled=1
-let g:gutentags_ctags_tagfile='.git/guttentags'
-let g:gutentags_generate_on_write=0 " disable it and just run the :GutentagsUpdate manually
-let g:gutentags_ctags_auto_set_tags = 0
+" Plug 'https://github.com/ludovicchabant/vim-gutentags'
+" set statusline+=%{gutentags#statusline()}
+" let g:gutentags_enabled=1
+" let g:gutentags_ctags_tagfile='.guttentags'
+" let g:gutentags_generate_on_write=0 " disable it and just run the :GutentagsUpdate manually
+" let g:gutentags_ctags_auto_set_tags = 0
+" let g:gutentags_trace = 1
 
 Plug 'Yggdroot/indentLine'
 let g:indentLine_enabled    = 1
 let g:indentLine_color_term = 237
-let g:indentLine_char       = '¦'
+" let g:indentLine_char       = '┆'
+let g:indentLine_char_list = ['|', '⋮', '⁞', '¦', '┊', '┆', '⋮', '⁞', '¦',  '┊', '┆', '⋮', '⁞', '¦', '┊', '┆']
 
 " forc nginx config
 au BufRead,BufNewFile *nginx/*.conf set ft=nginx
@@ -165,13 +189,13 @@ au BufRead,BufNewFile Dockerfile.* set ft=dockerfile
 
 Plug 'jparise/vim-graphql'
 
-Plug 'thoughtbot/vim-rspec'
-Plug 'tpope/vim-dispatch'
-let g:rspec_command = "Dispatch bin/rspec {spec}"
+" Plug 'thoughtbot/vim-rspec'
+" Plug 'tpope/vim-dispatch'
+" let g:rspec_command = "Dispatch bin/rspec {spec}"
 " let g:rspec_command = "!Dispatch bundle exec rspec -I . {spec}"
-let g:rspec_runner = "os_x_iterm2"
-map <Leader>t :call RunCurrentSpecFile()<CR>
-map <Leader>s :call RunNearestSpec()<CR>
+" let g:rspec_runner = "os_x_iterm2"
+" map <Leader>t :call RunCurrentSpecFile()<CR>
+" map <Leader>s :call RunNearestSpec()<CR>
 " Initialize plugin system
 call plug#end()
 " --------------------------------------------------------------------------------
@@ -180,7 +204,7 @@ call plug#end()
 
 nmap <leader>gd <Plug>(coc-definition)
 nmap <leader>gr <Plug>(coc-references)
-nmap <leader>gb :Gblame<CR>
+nmap <leader>gb :Git blame<CR>
 nmap <leader>gh :History<CR>
 
 " gruvbox https://github.com/morhetz/gruvbox/wiki/Usage
@@ -212,36 +236,42 @@ if filereadable(getcwd().'/.appfolders')
 endif
 
 " shortcut for nerd comment
-nnoremap <silent> <BS><BS> :call NERDComment('n', 'Toggle')<CR>
-vnoremap <silent> <BS><BS> :call NERDComment('v', 'Toggle')<CR>
-
+nnoremap <silent> <BS><BS> :call nerdcommenter#Comment('n', 'Toggle')<CR>
+vnoremap <silent> <BS><BS> :call nerdcommenter#Comment('v', 'Toggle')<CR>
+" nerdcommenter#Comment()
 " COC Config
 " https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#improve-the-completion-experience
-" inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-" inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+" inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
+inoremap <silent><expr> <Tab>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <silent><expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
 " inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 " inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
 " inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 " autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
-" http://blog.jamesnewton.com/setting-up-coc-nvim-for-ruby-development
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
+" https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#use-tab-or-custom-key-for-trigger-completion
+" use <tab> for trigger completion and navigate to the next complete item
+function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
+" Make <Leader> to accept selected completion item or notify coc.nvim to format
+inoremap <silent><expr> <Leader> coc#pum#visible() ? coc#pum#confirm() : "\<Leader>"
+
+" show suggestions
 inoremap <silent><expr> <c-space> coc#refresh()
 
 " nmap <silent> gd <Plug>(coc-definition)
 " nmap <silent> gy <Plug>(coc-type-definition)
 " nmap <silent> gi <Plug>(coc-implementation)
 " nmap <silent> gr <Plug>(coc-references)
+
+" set coc suggestions dropdown height
+set pumheight=20
 
 " remove trailing spaces
 autocmd BufWritePre * %s/\s\+$//e
@@ -655,9 +685,14 @@ set expandtab
 
 " code folding, :help usr_28 zi(toggle enable/disable folding)
 set foldcolumn=0
-set foldmethod=syntax " za(open/close folding) zO(open) zC(lose)
+" set foldmethod=syntax " za(open/close folding) zO(open) zC(lose)
+" set foldmethod=nvim_treesitter#foldexpr() " za(open/close folding) zO(open) zC(lose)
 set foldlevel=1 " zr reduce folding, zm increase folding
 set foldnestmax=5
+" set foldlevel=20
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+
 set scrolloff=3
 set sidescrolloff=30
 
@@ -669,12 +704,32 @@ else
   set wildignore=*.gif,*.png,*.jpg,*.jpeg,*.eot,*.svg,*.ttf,*.woff,*.woff2,*.min.js,*.min.css,*.cache,*.swp,*~,*.sock,*.git,.git
 endif
 
+" disable vim netrw
+let loaded_netrwPlugin = 1
+
 " set colorscheme gruvbox
 colorscheme gruvbox
+" " configure nvcode-color-schemes
+" let g:nvcode_termcolors=256
+" syntax on
+" colorscheme nvcode " Or whatever colorscheme you make
+" " checks if your terminal has 24-bit color support
+" if (has("termguicolors"))
+"     set termguicolors
+"     hi LineNr ctermbg=NONE guibg=NONE
+" endif
+" colorscheme dracula
+" colorscheme github_dark_default
+" colorscheme github_dimmed
+colorscheme vn-night
+" colorscheme gruvbox-baby
+
 " override folded color
-" highlight LineNr term=NONE cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
-" highlight CursorLineNR term=NONE cterm=NONE ctermfg=Yellow ctermbg=NONE gui=NONE guifg=Yellow guibg=NONE
-highlight Folded term=NONE cterm=NONE ctermfg=250 ctermbg=NONE gui=NONE guifg=250 guibg=NONE
+" highlight LineNr term=NONE cterm=NONE ctermfg=2C2F33 ctermbg=NONE gui=NONE guifg=2C2F33 guibg=NONE
+" highlight LineNr term=NONE cterm=NONE  ctermbg=NONE gui=NONE guibg=NONE guifg=66899D ctermfg=66899D
+" highlight CursorLineNr term=NONE cterm=NONE ctermfg=White ctermbg=NONE gui=NONE guifg=White guibg=NONE
+highlight LineNr term=NONE cterm=NONE ctermfg=Gray ctermbg=NONE gui=NONE guifg=Gray guibg=NONE
+highlight Folded term=NONE cterm=NONE ctermfg=Grey ctermbg=NONE gui=NONE guifg=Grey guibg=NONE
 
 " using luna theme for modified files
 au VimEnter * let g:airline#themes#papercolor#palette.normal_modified = g:airline#themes#luna#palette.normal_modified
@@ -682,4 +737,229 @@ au VimEnter * let g:airline#themes#papercolor#palette.insert_modified = g:airlin
 au VimEnter * let g:airline#themes#papercolor#palette.visual_modified = g:airline#themes#luna#palette.visual_modified
 au VimEnter * let g:airline#themes#papercolor#palette.tabline = { 'airline_tabmod': ['#ffffff', '#780000', 231, 88, ''] }
 au VimEnter * :AirlineRefresh
+
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
+
+" reset the cursor on start (for older versions of vim, usually not required)
+augroup myCmds
+au!
+autocmd VimEnter * silent !echo -ne "\e[2 q"
+augroup END
+
+
+
+" At the bottom of your init.vim, keep all configs
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable=true
+  },
+  pairs = {
+    enable = true,
+    disable = {},
+    highlight_pair_events = {}, -- e.g. {"CursorMoved"}, -- when to highlight the pairs, use {} to deactivate highlighting
+    highlight_self = false, -- whether to highlight also the part of the pair under cursor (or only the partner)
+    goto_right_end = false, -- whether to go to the end of the right partner or the beginning
+    fallback_cmd_normal = "call matchit#Match_wrapper('',1,'n')", -- What command to issue when we can't find a pair (e.g. "normal! %")
+    keymaps = {
+      goto_partner = "<leader>%",
+      delete_balanced = "X",
+    },
+    delete_balanced = {
+      only_on_first_char = false, -- whether to trigger balanced delete when on first character of a pair
+      fallback_cmd_normal = nil, -- fallback command when no pair found, can be nil
+      longest_partner = false, -- whether to delete the longest or the shortest pair when multiple found.
+                               -- E.g. whether to delete the angle bracket or whole tag in  <pair> </pair>
+    }
+  },
+  autotag = {
+    enable = true,
+    filetypes = {
+      'html', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'svelte', 'vue', 'tsx', 'jsx', 'rescript', 'javascript.jsx',
+      'xml',
+      'php',
+      'markdown',
+      'glimmer','handlebars','hbs'
+    },
+  },
+  matchup = {
+    enable = true,              -- mandatory, false will disable the whole extension
+  },
+  textobjects = {
+    select = {
+      enable = true,
+
+      -- Automatically jump forward to textobj, similar to targets.vim
+      lookahead = true,
+
+      keymaps = {
+        -- You can use the capture groups defined in textobjects.scm
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        -- you can optionally set descriptions to the mappings (used in the desc parameter of nvim_buf_set_keymap
+        ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+      },
+      -- You can choose the select mode (default is charwise 'v')
+      selection_modes = {
+        ['@parameter.outer'] = 'v', -- charwise
+        ['@function.outer'] = 'V', -- linewise
+        ['@class.outer'] = '<c-v>', -- blockwise
+      },
+      -- If you set this to `true` (default is `false`) then any textobject is
+      -- extended to include preceding xor succeeding whitespace. Succeeding
+      -- whitespace has priority in order to act similarly to eg the built-in
+      -- `ap`.
+      include_surrounding_whitespace = true,
+    },
+    move = {
+      enable = true,
+      set_jumps = true, -- whether to set jumps in the jumplist
+      goto_next_start = {
+        ["]f"] = "@function.outer",
+        ["]c"] = "@class.outer",
+      },
+      goto_next_end = {
+        ["]F"] = "@function.outer",
+        ["]C"] = "@class.outer",
+      },
+      goto_previous_start = {
+        ["[f"] = "@function.outer",
+        ["[c"] = "@class.outer",
+      },
+      goto_previous_end = {
+        ["[F"] = "@function.outer",
+        ["[C"] = "@class.outer",
+      },
+    },
+  },
+  refactor = {
+    highlight_definitions = {
+      enable = false,
+      -- Set to false if you have an `updatetime` of ~100.
+      clear_on_cursor_move = true,
+    },
+    highlight_current_scope = { enable = false },
+    smart_rename = {
+      enable = true,
+      keymaps = {
+        smart_rename = "gR",
+      },
+    },
+    navigation = {
+      enable = true,
+      keymaps = {
+        goto_definition = "gd",
+        list_definitions = "gD",
+        list_definitions_toc = "gO",
+        goto_next_usage = "gn",
+        goto_previous_usage = "gp",
+      },
+    },
+  },
+}
+
+local npairs = require('nvim-autopairs')
+npairs.setup()
+
+npairs.add_rules(require('nvim-autopairs.rules.endwise-elixir'))
+npairs.add_rules(require('nvim-autopairs.rules.endwise-lua'))
+npairs.add_rules(require('nvim-autopairs.rules.endwise-ruby'))
+
+-- -- tree climber
+-- local keyopts = { noremap = true, silent = true }
+-- vim.keymap.set({'n', 'v', 'o'}, 'H', require('tree-climber').goto_parent, keyopts)
+-- vim.keymap.set({'n', 'v', 'o'}, 'L', require('tree-climber').goto_child, keyopts)
+-- vim.keymap.set({'n', 'v', 'o'}, 'J', require('tree-climber').goto_next, keyopts)
+-- vim.keymap.set({'n', 'v', 'o'}, 'K', require('tree-climber').goto_prev, keyopts)
+-- vim.keymap.set({'v', 'o'}, 'in', require('tree-climber').select_node, keyopts)
+-- vim.keymap.set('n', '<c-k>', require('tree-climber').swap_prev, keyopts)
+-- vim.keymap.set('n', '<c-j>', require('tree-climber').swap_next, keyopts)
+
+-- -- Syntax Tree Surfer
+-- local opts = {noremap = true, silent = true}
+--
+-- -- Normal Mode Swapping:
+-- -- Swap The Master Node relative to the cursor with it's siblings, Dot Repeatable
+-- vim.keymap.set("n", "vU", function()
+--   vim.opt.opfunc = "v:lua.STSSwapUpNormal_Dot"
+--   return "g@l"
+-- end, { silent = true, expr = true })
+-- vim.keymap.set("n", "vD", function()
+--   vim.opt.opfunc = "v:lua.STSSwapDownNormal_Dot"
+--   return "g@l"
+-- end, { silent = true, expr = true })
+--
+-- -- Swap Current Node at the Cursor with it's siblings, Dot Repeatable
+-- vim.keymap.set("n", "vd", function()
+--   vim.opt.opfunc = "v:lua.STSSwapCurrentNodeNextNormal_Dot"
+--   return "g@l"
+-- end, { silent = true, expr = true })
+-- vim.keymap.set("n", "vu", function()
+--   vim.opt.opfunc = "v:lua.STSSwapCurrentNodePrevNormal_Dot"
+--   return "g@l"
+-- end, { silent = true, expr = true })
+--
+-- --> If the mappings above don't work, use these instead (no dot repeatable)
+-- -- vim.keymap.set("n", "vd", '<cmd>STSSwapCurrentNodeNextNormal<cr>', opts)
+-- -- vim.keymap.set("n", "vu", '<cmd>STSSwapCurrentNodePrevNormal<cr>', opts)
+-- -- vim.keymap.set("n", "vD", '<cmd>STSSwapDownNormal<cr>', opts)
+-- -- vim.keymap.set("n", "vU", '<cmd>STSSwapUpNormal<cr>', opts)
+-- --
+-- -- Visual Selection from Normal Mode
+-- vim.keymap.set("n", "vx", '<cmd>STSSelectMasterNode<cr>', opts)
+-- vim.keymap.set("n", "vn", '<cmd>STSSelectCurrentNode<cr>', opts)
+-- --
+-- -- Select Nodes in Visual Mode
+-- vim.keymap.set("x", "J", '<cmd>STSSelectNextSiblingNode<cr>', opts)
+-- vim.keymap.set("x", "K", '<cmd>STSSelectPrevSiblingNode<cr>', opts)
+-- vim.keymap.set("x", "H", '<cmd>STSSelectParentNode<cr>', opts)
+-- vim.keymap.set("x", "L", '<cmd>STSSelectChildNode<cr>', opts)
+--
+-- -- Swapping Nodes in Visual Mode
+-- vim.keymap.set("x", "<A-j>", '<cmd>STSSwapNextVisual<cr>', opts)
+-- vim.keymap.set("x", "<A-k>", '<cmd>STSSwapPrevVisual<cr>', opts)
+
+
+-- -- Targeted Jump with virtual_text
+-- local sts = require("syntax-tree-surfer")
+-- vim.keymap.set("n", "gv", function() -- only jump to variable_declarations
+--   sts.targeted_jump({ "variable_declaration" })
+-- end, opts)
+-- vim.keymap.set("n", "gfu", function() -- only jump to functions
+--   sts.targeted_jump({ "function", "arrrow_function", "function_definition" })
+--   --> In this example, the Lua language schema uses "function",
+--   --  when the Python language uses "function_definition"
+--   --  we include both, so this keymap will work on both languages
+-- end, opts)
+-- vim.keymap.set("n", "gif", function() -- only jump to if_statements
+--   sts.targeted_jump({ "if_statement" })
+-- end, opts)
+-- vim.keymap.set("n", "gfo", function() -- only jump to for_statements
+--   sts.targeted_jump({ "for_statement" })
+-- end, opts)
+-- vim.keymap.set("n", "gj", function() -- jump to all that you specify
+--   sts.targeted_jump({
+--     "function",
+--     "if_statement",
+--     "else_clause",
+--     "else_statement",
+--     "elseif_statement",
+--     "for_statement",
+--     "while_statement",
+--     "switch_statement",
+--   })
+-- end, opts)
+
+-- require("tsht").config.hint_keys = { "h", "j", "f", "d", "n", "v", "s", "l", "a" }
+--
+-- -- place this in one of your configuration file(s)
+-- require'hop'.setup()
+-- vim.api.nvim_set_keymap('', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
+-- vim.api.nvim_set_keymap('', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
+-- vim.api.nvim_set_keymap('', 't', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })<cr>", {})
+-- vim.api.nvim_set_keymap('', 'T', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })<cr>", {})
+
+EOF
 

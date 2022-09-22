@@ -176,7 +176,7 @@ Plug 'Yggdroot/indentLine'
 let g:indentLine_enabled    = 1
 let g:indentLine_color_term = 237
 " let g:indentLine_char       = '┆'
-let g:indentLine_char_list = ['|', '⋮', '⁞', '¦', '┊', '┆', '⋮', '⁞', '¦',  '┊', '┆', '⋮', '⁞', '¦', '┊', '┆']
+let g:indentLine_char_list = ['|', '⁞', '¦', '┊', '┆', '⁞', '¦',  '┊', '┆', '⁞', '¦', '┊', '┆']
 
 " forc nginx config
 au BufRead,BufNewFile *nginx/*.conf set ft=nginx
@@ -577,6 +577,7 @@ nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().ap
 " code search in current open file
 nnoremap <silent> <space><space> :call fzf#vim#buffer_lines()<CR>
 nnoremap <silent> <c-space> :call fzf#vim#buffer_lines( expand('<cword>') )<CR>
+nnoremap <silent> <tab><space> :call fzf#vim#lines( expand('<cword>') )<CR>
 " nnoremap <silent> <space><space> :echom "normal /" . expand('<cword>') . "/e+1\<cr>"
 vnoremap <silent> <c-space> :call fzf#vim#buffer_lines( GetVisualSelection() )<CR>
 
@@ -818,19 +819,19 @@ require'nvim-treesitter.configs'.setup {
       set_jumps = true, -- whether to set jumps in the jumplist
       goto_next_start = {
         ["]f"] = "@function.outer",
-        ["]c"] = "@class.outer",
+        ["]k"] = "@class.outer",
       },
       goto_next_end = {
         ["]F"] = "@function.outer",
-        ["]C"] = "@class.outer",
+        ["]K"] = "@class.outer",
       },
       goto_previous_start = {
         ["[f"] = "@function.outer",
-        ["[c"] = "@class.outer",
+        ["[k"] = "@class.outer",
       },
       goto_previous_end = {
         ["[F"] = "@function.outer",
-        ["[C"] = "@class.outer",
+        ["[K"] = "@class.outer",
       },
     },
   },

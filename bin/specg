@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+if [[ "$1" = 'dbmigrate' ||  "$1" = 'dbload' ]]; then
+  RAILS_ENV=test bundle exec rails db:drop
+  RAILS_ENV=test bundle exec rails db:create
+  [ "$1" = 'dbmigrate' ] && RAILS_ENV=test bundle exec rails db:migrate
+  [ "$1" = 'dbload'  ] && RAILS_ENV=test bundle exec rails db:schema:load
+  exit
+fi
+
+if [ ! -z "$(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \_spec.rb$)" ]; then
+  echo "$(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \_spec.rb$)"
+  bundle exec rspec $(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \_spec.rb$)
+  exit
+fi
+
+if [ ! -z "$(git diff master..HEAD --name-only | grep -v 'db/schema' | grep \_spec.rb$)" ]; then
+  echo "$(git diff master..HEAD --name-only | grep -v 'db/schema' | grep \_spec.rb$)"
+  bundle exec rspec $(git diff master..HEAD --name-only | grep -v 'db/schema' | grep \_spec.rb$)
+  exit
+fi
+

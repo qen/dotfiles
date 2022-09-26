@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+if [ ! -z "$(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \.rb$)" ]; then
+  echo "$(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \.rb$)"
+  bundle exec rubocop $(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \.rb$)
+  exit
+fi
+
+if [ ! -z "$(git diff master..HEAD --name-only | grep -v 'db/schema' | grep \.rb$)" ]; then
+  echo "$(git diff master..HEAD --name-only | grep -v 'db/schema' | grep \.rb$)"
+  bundle exec rubocop $(git diff master..HEAD --name-only | grep -v 'db/schema' | grep \.rb$)
+  exit
+fi
+

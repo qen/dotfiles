@@ -174,9 +174,13 @@ autocmd FileType html,css,jsx,php,erb,javascript,javascript.jsx EmmetInstall
 
 Plug 'Yggdroot/indentLine'
 let g:indentLine_enabled    = 1
-let g:indentLine_color_term = 237
+let g:indentLine_color_term = 236
+" https://github.com/morhetz/gruvbox/blob/master/colors/gruvbox.vim
+" let g:indentLine_color_gui  = '#504945'
+" let g:indentLine_color_gui  = '#32302f'
 " let g:indentLine_char       = '┆'
-let g:indentLine_char_list = ['|', '⁞', '¦', '┊', '┆', '⁞', '¦',  '┊', '┆', '⁞', '¦', '┊', '┆']
+" let g:indentLine_char_list = ['|', '┊', '⁞', '┆', '¦', '⁞', '┊', '⁞', '┆', '¦', '⁞', '┊', '⁞', '┆', '¦', '⁞', '┊', '⁞', '┆', '¦', '⁞']
+let g:indentLine_char_list = ['|', '┊', '¦', '┆', '┊', '¦', '┆', '┊', '¦', '┆', '┊', '¦', '┆', '┊', '¦', '┆', '┊', '¦', '┆', '┊', '¦', '┆']
 
 " forc nginx config
 au BufRead,BufNewFile *nginx/*.conf set ft=nginx
@@ -561,14 +565,17 @@ nnoremap <silent> <Tab><Tab> :call RelativeParentFileSearch('%:h')<CR>
 nnoremap <silent> <S-Tab><S-Tab> :call RelativeParentFileSearch('%:h:h')<CR>
 
 " - app mvc
-nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc, 'options': '--print-query -i' } )<CR>
+" nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc, 'options': '--print-query -i' } )<CR>
+nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc } )<CR>
 " nnoremap <silent> <s-f><s-f> :call fzf#vim#files('', { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(fnamemodify(expand('%:t'), ':r')).'"' } )<CR>
 
 " - app react javascript / assets
-nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets, 'options': '--print-query -i' } )<CR>
+" nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets, 'options': '--print-query -i' } )<CR>
+nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets } )<CR>
 
 " - app spec similar file
-nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec, 'options': '--print-query -i' } )<CR>
+" nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec, 'options': '--print-query -i' } )<CR>
+nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec } )<CR>
 
 " --------------------
 "  Code Search using space as suffix

@@ -447,7 +447,8 @@ function! RelativeParentFileSearch(path)
   "   let query  = join(folders[2:-2], '/').'/'
   " endif
 
-  call fzf#vim#files(parent, { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
+  " call fzf#vim#files(parent,  { 'source': g:agsource,  'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
+  call fzf#vim#files(parent,  { 'source': g:agsource,  'options': '-i --no-hscroll -q "'.(query).'"' } )
 endfunction
 
 function! SimilarFilenameSearch(visualrange)

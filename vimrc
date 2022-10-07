@@ -40,6 +40,9 @@ Plug 'yuezk/vim-js'
 Plug 'maxmellon/vim-jsx-pretty'
 Plug 'chr4/nginx.vim'
 Plug 'plasticboy/vim-markdown'
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_conceal = 0
+" let g:vim_markdown_fenced_languages = ['viml=vim', 'bash=sh', 'ini=dosini']
 " Plug 'tpope/vim-endwise'
 " Plug 'alvan/vim-closetag'
 
@@ -64,7 +67,6 @@ Plug 'nvim-treesitter/nvim-treesitter-refactor'
 " Plug 'phaazon/hop.nvim'
 " Plug 'mfussenegger/nvim-treehopper'
 let g:no_ruby_maps = 0
-let g:vim_markdown_conceal = 0
 let g:jsx_ext_required = 0
 let g:vim_jsx_pretty_colorful_config = 1 " default 0
 " filenames like *.xml, *.html, *.xhtml, ...
@@ -193,13 +195,52 @@ au BufRead,BufNewFile Dockerfile.* set ft=dockerfile
 
 Plug 'jparise/vim-graphql'
 
-" Plug 'thoughtbot/vim-rspec'
-" Plug 'tpope/vim-dispatch'
+Plug 'thoughtbot/vim-rspec'
+Plug 'tpope/vim-dispatch'
 " let g:rspec_command = "Dispatch bin/rspec {spec}"
-" let g:rspec_command = "!Dispatch bundle exec rspec -I . {spec}"
-" let g:rspec_runner = "os_x_iterm2"
-" map <Leader>t :call RunCurrentSpecFile()<CR>
-" map <Leader>s :call RunNearestSpec()<CR>
+" let g:rspec_command = "Dispatch bundle exec rspec {spec}"
+let g:rspec_command = "Dispatch! bundle exec rspec -I . {spec}"
+let g:rspec_runner = "os_x_iterm2"
+" autocmd WinNew * wincmd L
+au FileType qf wincmd L
+let g:dispatch_tmux_height = '50%'
+function! FocusRunNearestSpec()
+  if search("binding\.pry") != 0
+    let g:rspec_command = "Start bundle exec rspec -I . {spec}"
+    call RunNearestSpec()
+    let g:rspec_command = "Dispatch! bundle exec rspec -I . {spec}"
+  else
+    call RunNearestSpec()
+  end
+endfunction
+function! PryRunNearestSpec()
+  if match(getline('.'), "binding\.pry") == -1
+    execute "normal \<s-O>binding.pry\<ESC>:w\<CR>"
+  end
+  call FocusRunNearestSpec()
+endfunction
+" run focus if there is binding.pry
+noremap <Leader>t :call FocusRunNearestSpec()<CR>
+" shortcut key to insert binding.pry for ruby files
+noremap <leader>d :call PryRunNearestSpec()<CR>
+noremap <Leader>TT :call RunCurrentSpecFile()<CR>
+noremap <Leader>TD :Start specg dbmigrate<CR>
+noremap <Leader>TL :Start specg dbload<CR>
+noremap <Leader>RC :Start bundle exec rails console<CR>
+noremap <Leader>RD :Dispatch! bundle exec rails db:migrate<CR>
+noremap <Leader>RT :Dispatch! bundle exec rails i18n:js:export<CR>
+noremap <Leader>Z :Start zsh<CR>
+
+function! ToggleQuickFix()
+    if empty(filter(getwininfo(), 'v:val.quickfix'))
+        vertical Copen
+    else
+        cclose
+    endif
+endfunction
+
+nmap <silent> <Leader><Leader> :call ToggleQuickFix()<CR>
+nmap <silent> <c-\> :Copen<CR>
 " Initialize plugin system
 call plug#end()
 " --------------------------------------------------------------------------------
@@ -251,9 +292,11 @@ inoremap <silent><expr> <Tab>
       \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
 inoremap <silent><expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
-" inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-" inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
-" inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+" inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
+" inoremap <silent><expr> <space> coc#pum#visible() ? coc#pum#confirm() : "\<space>"
+
+" inoremap <silent><expr> <cr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
+" inoremap <silent><expr> <cr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 " autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
 " https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#use-tab-or-custom-key-for-trigger-completion
@@ -264,10 +307,10 @@ function! CheckBackspace() abort
 endfunction
 
 " Make <Leader> to accept selected completion item or notify coc.nvim to format
-inoremap <silent><expr> <Leader> coc#pum#visible() ? coc#pum#confirm() : "\<Leader>"
+" inoremap <silent><expr> <Tab> coc#pum#visible() ? coc#pum#confirm() : "\<Tab>"
 
 " show suggestions
-inoremap <silent><expr> <c-space> coc#refresh()
+inoremap <silent><expr> <c-space> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
 
 " nmap <silent> gd <Plug>(coc-definition)
 " nmap <silent> gy <Plug>(coc-type-definition)
@@ -275,7 +318,7 @@ inoremap <silent><expr> <c-space> coc#refresh()
 " nmap <silent> gr <Plug>(coc-references)
 
 " set coc suggestions dropdown height
-set pumheight=20
+set pumheight=15
 
 " remove trailing spaces
 autocmd BufWritePre * %s/\s\+$//e
@@ -461,7 +504,7 @@ function! SimilarFilenameSearch(visualrange)
     let query = GetVisualSelection()
   endif
 
-  call fzf#vim#files('', { 'source': AgSourceSimilar(), 'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
+  call fzf#vim#files('', { 'source': AgSourceSimilar(), 'options': '-i --no-hscroll -q "'.(query).'"' } )
 endfunction
 
 let g:ag_known_file_types = {
@@ -482,7 +525,7 @@ function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
   if needle != ''
     let agftype = get(g:ag_known_file_types, &ft, ' "\.('. expand('%:e') .')$"')
-    call fzf#vim#ag_raw(g:appignore.' -G '.agftype.' '.needle)
+    call fzf#vim#ag_raw(g:appignore.' -G '.agftype.' "'.needle.'"')
   endif
 endfunction
 
@@ -523,14 +566,14 @@ endfunction
 " =====================
 
 " reload current file and update tag file
-nnoremap <Leader>r :e! <bar> :GutentagsUpdate! <CR>
+" nnoremap <Leader>r :e! <bar> :GutentagsUpdate! <CR>
 
 " unbind shift-k, its annoying
 map <S-k> <Nop>
 
 " save file
 nnoremap <C-s> :w<CR>
-nnoremap <leader>w :w<CR>
+" nnoremap <leader>w :w<CR>
 
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
@@ -553,7 +596,7 @@ nnoremap <c-n><c-n> :e<space>
 " open files
 nnoremap <c-f><c-p> :Files <C-R>=fnamemodify(@%, ':h')<CR>/
 " nnoremap <c-f><c-p> :Files<space>
-nnoremap <c-f><c-g> :GFiles<CR>
+nnoremap <c-f><c-g> :GFiles?<CR>
 " search similar file name
 nnoremap <c-f><c-f> :call SimilarFilenameSearch('0')<CR>
 vnoremap <c-f><c-f> :call SimilarFilenameSearch( GetVisualSelection() )<CR>
@@ -567,12 +610,13 @@ nnoremap <silent> <S-Tab><S-Tab> :call RelativeParentFileSearch('%:h:h')<CR>
 
 " - app mvc
 " nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc, 'options': '--print-query -i' } )<CR>
-nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc } )<CR>
+" nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc } )<CR>
+nnoremap <silent> <Enter><Enter> :GFiles<CR>
 " nnoremap <silent> <s-f><s-f> :call fzf#vim#files('', { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(fnamemodify(expand('%:t'), ':r')).'"' } )<CR>
 
 " - app react javascript / assets
 " nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets, 'options': '--print-query -i' } )<CR>
-nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets } )<CR>
+" nnoremap <silent> <Leader><Leader> :call fzf#vim#files('app', { 'source': agsource.appassets } )<CR>
 
 " - app spec similar file
 " nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec, 'options': '--print-query -i' } )<CR>
@@ -764,24 +808,24 @@ require'nvim-treesitter.configs'.setup {
   highlight = {
     enable=true
   },
-  pairs = {
-    enable = true,
-    disable = {},
-    highlight_pair_events = {}, -- e.g. {"CursorMoved"}, -- when to highlight the pairs, use {} to deactivate highlighting
-    highlight_self = false, -- whether to highlight also the part of the pair under cursor (or only the partner)
-    goto_right_end = false, -- whether to go to the end of the right partner or the beginning
-    fallback_cmd_normal = "call matchit#Match_wrapper('',1,'n')", -- What command to issue when we can't find a pair (e.g. "normal! %")
-    keymaps = {
-      goto_partner = "<leader>%",
-      delete_balanced = "X",
-    },
-    delete_balanced = {
-      only_on_first_char = false, -- whether to trigger balanced delete when on first character of a pair
-      fallback_cmd_normal = nil, -- fallback command when no pair found, can be nil
-      longest_partner = false, -- whether to delete the longest or the shortest pair when multiple found.
-                               -- E.g. whether to delete the angle bracket or whole tag in  <pair> </pair>
-    }
-  },
+  -- pairs = {
+  --   enable = true,
+  --   disable = {},
+  --   highlight_pair_events = {}, -- e.g. {"CursorMoved"}, -- when to highlight the pairs, use {} to deactivate highlighting
+  --   highlight_self = false, -- whether to highlight also the part of the pair under cursor (or only the partner)
+  --   goto_right_end = false, -- whether to go to the end of the right partner or the beginning
+  --   fallback_cmd_normal = "call matchit#Match_wrapper('',1,'n')", -- What command to issue when we can't find a pair (e.g. "normal! %")
+  --   keymaps = {
+  --     goto_partner = "<leader>%",
+  --     delete_balanced = "X",
+  --   },
+  --   delete_balanced = {
+  --     only_on_first_char = false, -- whether to trigger balanced delete when on first character of a pair
+  --     fallback_cmd_normal = nil, -- fallback command when no pair found, can be nil
+  --     longest_partner = false, -- whether to delete the longest or the shortest pair when multiple found.
+  --                              -- E.g. whether to delete the angle bracket or whole tag in  <pair> </pair>
+  --   }
+  -- },
   autotag = {
     enable = true,
     filetypes = {
@@ -870,11 +914,54 @@ require'nvim-treesitter.configs'.setup {
 }
 
 local npairs = require('nvim-autopairs')
-npairs.setup()
+-- add option map_cr
+npairs.setup({ map_cr = true })
 
 npairs.add_rules(require('nvim-autopairs.rules.endwise-elixir'))
 npairs.add_rules(require('nvim-autopairs.rules.endwise-lua'))
 npairs.add_rules(require('nvim-autopairs.rules.endwise-ruby'))
+
+-- npairs.setup({ map_bs = false, map_cr = false })
+-- vim.g.coq_settings = { keymap = { recommended = false } }
+--
+-- local remap = vim.api.nvim_set_keymap
+-- -- these mappings are coq recommended mappings unrelated to nvim-autopairs
+-- -- remap('i', '<esc>', [[coc#pum#visible() ? "<c-e><esc>" : "<esc>"]], { expr = true, noremap = true })
+-- -- remap('i', '<c-c>', [[coc#pum#visible() ? "<c-e><c-c>" : "<c-c>"]], { expr = true, noremap = true })
+-- remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap = true })
+-- -- remap('i', '<s-tab>', [[coc#pum#visible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
+--
+-- -- skip it, if you use another global object
+-- _G.MUtils= {}
+--
+-- MUtils.CR = function()
+--   if vim.fn.pumvisible() ~= 0 then
+--     if vim.fn.complete_info({ 'selected' }).selected ~= -1 then
+--       return npairs.esc('<c-y>')
+--     else
+--       return npairs.esc('<c-e>') .. npairs.autopairs_cr()
+--     end
+--   else
+--     return npairs.autopairs_cr()
+--   end
+-- end
+-- remap('i', '<cr>', 'v:lua.MUtils.CR()', { expr = true, noremap = true })
+--
+-- MUtils.BS = function()
+--   if vim.fn.pumvisible() ~= 0 and vim.fn.complete_info({ 'mode' }).mode == 'eval' then
+--     return npairs.esc('<c-e>') .. npairs.autopairs_bs()
+--   else
+--     return npairs.autopairs_bs()
+--   end
+-- end
+-- remap('i', '<bs>', 'v:lua.MUtils.BS()', { expr = true, noremap = true })
+
+
+-- local remap = vim.api.nvim_set_keymap
+-- remap('i', '<esc>', [[pumvisible() ? "<c-e><esc>" : "<esc>"]], { expr = true, noremap = true })
+-- remap('i', '<c-c>', [[pumvisible() ? "<c-e><c-c>" : "<c-c>"]], { expr = true, noremap = true })
+-- remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap = true })
+-- remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
 
 -- -- tree climber
 -- local keyopts = { noremap = true, silent = true }

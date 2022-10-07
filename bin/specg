@@ -5,7 +5,7 @@ if [[ "$1" = 'dbmigrate' ||  "$1" = 'dbload' ]]; then
   RAILS_ENV=test bundle exec rails db:create
   [ "$1" = 'dbmigrate' ] && RAILS_ENV=test bundle exec rails db:migrate
   [ "$1" = 'dbload'  ] && RAILS_ENV=test bundle exec rails db:schema:load
-  exit
+  exit $?
 fi
 
 if [ ! -z "$(git status --short | awk '$1 ~ /^M|A|U/ {print $2}' | grep -v 'db/schema' | grep \_spec.rb$)" ]; then

@@ -42,7 +42,8 @@
   d = difftool
   tagrev = echo $@
   edit = !$EDITOR $(git status --short | awk '$1 ~ /^M|A|U/ {print $2}')
-  open = !$EDITOR $(git diff master..HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
+  ; open = !$EDITOR $(git diff master..HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
+  open = !$EDITOR $(git diff $(git merge-base master HEAD) HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
   ; open = !$EDITOR $(git show --pretty="" --name-only HEAD)
 
 [color "status"]

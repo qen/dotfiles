@@ -54,6 +54,7 @@ Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
 " Plug 'nvim-treesitter-endwise'
 Plug 'theHamsta/nvim-treesitter-pairs'
 Plug 'andymass/vim-matchup'
+let g:matchup_matchparen_offscreen = {'method': 'scrolloff'}
 Plug 'windwp/nvim-ts-autotag'
 Plug 'nvim-treesitter/nvim-treesitter-context'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update

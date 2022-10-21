@@ -205,26 +205,51 @@ let g:rspec_runner = "os_x_iterm2"
 " autocmd WinNew * wincmd L
 au FileType qf wincmd L
 let g:dispatch_tmux_height = '50%'
-function! FocusRunNearestSpec()
-  if search("binding\.pry") != 0
+
+function! FocusRunNearestOrLastSpec(force_last)
+  " call PryFocusStart()
+  let view = winsaveview()
+  " let save_cursor = getcurpos();
+  let binding = search("binding\.pry")
+  " call setpos('.', save_cursor)
+  call winrestview(view)
+
+  if binding != 0
     let g:rspec_command = "Start bundle exec rspec -I . {spec}"
+  end
+
+  if match(expand("%"), "_spec.rb$") != -1 && a:force_last != 'last'
+    " current buffer is rspec file
     call RunNearestSpec()
-    let g:rspec_command = "Dispatch! bundle exec rspec -I . {spec}"
   else
-    call RunNearestSpec()
+    call RunLastSpec()
+  end
+
+  if binding != 0
+    let g:rspec_command = "Dispatch! bundle exec rspec -I . {spec}"
+  end
+
+  if binding == 0
+    vertical Copen
   end
 endfunction
-function! PryRunNearestSpec()
+
+function! PryFocusRunNearestSpec()
+  cclose
   if match(getline('.'), "binding\.pry") == -1
     execute "normal \<s-O>binding.pry\<ESC>:w\<CR>"
   end
-  call FocusRunNearestSpec()
+  call FocusRunNearestOrLastSpec('last')
 endfunction
+
 " run focus if there is binding.pry
-noremap <Leader>t :call FocusRunNearestSpec()<CR>
+noremap <silent> <Leader>t :call FocusRunNearestOrLastSpec('near_or_last')<CR>
+noremap <silent> <Leader><Enter> :call FocusRunNearestOrLastSpec('last')<CR>
+
 " shortcut key to insert binding.pry for ruby files
-noremap <leader>d :call PryRunNearestSpec()<CR>
-noremap <Leader>TT :call RunCurrentSpecFile()<CR>
+noremap <silent> <Leader>d :call PryFocusRunNearestSpec()<CR>
+
+noremap <silent> <Leader>TT :call RunCurrentSpecFile()<CR>
 noremap <Leader>TD :Start specg dbmigrate<CR>
 noremap <Leader>TL :Start specg dbload<CR>
 noremap <Leader>RC :Start bundle exec rails console<CR>
@@ -232,16 +257,14 @@ noremap <Leader>RD :Dispatch! bundle exec rails db:migrate<CR>
 noremap <Leader>RT :Dispatch! bundle exec rails i18n:js:export<CR>
 noremap <Leader>Z :Start zsh<CR>
 
-function! ToggleQuickFix()
-    if empty(filter(getwininfo(), 'v:val.quickfix'))
-        vertical Copen
-    else
-        cclose
-    endif
+function! QuickFixLast()
+  vertical Copen
+  execute "normal \<s-G>zz<CR>"
 endfunction
 
-nmap <silent> <Leader><Leader> :call ToggleQuickFix()<CR>
-nmap <silent> <c-\> :Copen<CR>
+noremap <silent> <Leader><Leader> :call QuickFixLast()<CR>
+noremap <silent> <c-\> :cclose<CR>
+
 " Initialize plugin system
 call plug#end()
 " --------------------------------------------------------------------------------
@@ -612,7 +635,21 @@ nnoremap <silent> <S-Tab><S-Tab> :call RelativeParentFileSearch('%:h:h')<CR>
 " - app mvc
 " nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc, 'options': '--print-query -i' } )<CR>
 " nnoremap <silent> <Enter><Enter> :call fzf#vim#files('app', { 'source': agsource.appmvc } )<CR>
-nnoremap <silent> <Enter><Enter> :GFiles<CR>
+" nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': "(git status --short | awk '\$1 ~ /^M|A|U/ {print \$2}'; git diff $(git merge-base master HEAD) HEAD --name-only) | sort | uniq", 'options': ['--prompt', 'BranchFiles?> ']} )<CR>
+" nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': 'git diff $(git merge-base master HEAD) HEAD --name-only | sort | uniq', 'options': ['--prompt', 'BranchFiles?> ']} )<CR>
+" nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': 'git diff $(git merge-base master HEAD) HEAD --name-only \| sort \| uniq', 'options': ['--prompt', 'BranchFiles?> ']} )<CR>
+nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': '(git status --short \| awk ''$1 ~ /^M\|A\|U/ {print $2}''; git diff $(git merge-base master HEAD) HEAD --name-only) \| sort \| uniq', 'options': ['--prompt', 'BranchFiles?> ']} )<CR>
+" :echo '(git status --short \| awk ''$1 ~ /^M\|A\|U/ {print $2}''; git diff $(git merge-base master HEAD) HEAD --name-only) \| sort \| uniq'
+" :echo 'git status --short \| awk ''$1 ~ /^M\|A\|U/ {print $2}'''
+" nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': (shellescape('git diff $(git merge-base master HEAD) HEAD --name-only | sort | uniq')), 'options': ['--prompt', 'BranchFiles?> ']} )<CR>
+" nnoremap <silent> <C-G> :GFiles?<CR>
+" git status --short | awk '$1 ~ /^M|A|U/ {print $2}'; git diff $(git merge-base master HEAD) HEAD --name-only
+":FZF --source $(git diff $(git merge-base master HEAD) HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
+":FZF --source  git diff $(git merge-base master HEAD) HEAD --name-only
+"
+" :call fzf#vim#files('app', { 'source': 'git diff $(git merge-base master HEAD) HEAD --name-only', 'options': ['--prompt', 'BranchFiles?> ']} )
+"
+
 " nnoremap <silent> <s-f><s-f> :call fzf#vim#files('', { 'source': g:agsource, 'options': '--print-query -i --no-hscroll -q "'.(fnamemodify(expand('%:t'), ':r')).'"' } )<CR>
 
 " - app react javascript / assets
@@ -622,6 +659,7 @@ nnoremap <silent> <Enter><Enter> :GFiles<CR>
 " - app spec similar file
 " nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec, 'options': '--print-query -i' } )<CR>
 nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec } )<CR>
+
 
 " --------------------
 "  Code Search using space as suffix

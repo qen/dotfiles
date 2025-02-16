@@ -30,20 +30,28 @@
 [alias]
   st = status
   ci = commit
-  br = branch
+  br = branch --sort=-committerdate
   co = checkout
   df = diff
   lg = log -p
   lol = log --decorate --pretty=oneline --abbrev-commit
+  lolb = log master..HEAD --decorate --pretty=oneline --abbrev-commit
   history = log --decorate --pretty=format:'%cr, %ci > %C(auto)%h%d %cn <%ce> %s'
   graph = log --graph --decorate --pretty=oneline --abbrev-commit --all
   ls = ls-files
   release = tag -n1
   d = difftool
-  tagrev = echo $@
-  edit = !$EDITOR $(git status --short | awk '$1 ~ /^M|A|U/ {print $2}')
+  merge-squash-theirs = merge --squash -Xtheirs
+  merge-squash = merge --squash
+  ; tagrev = !echo $@
+  ; edit = !$EDITOR $(git status --short | awk '$1 ~ /^M|A|U/ {print $2}')
   ; open = !$EDITOR $(git diff master..HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
-  open = !$EDITOR $(git diff $(git merge-base master HEAD) HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
+  ; open = !$EDITOR $(git diff $(git merge-base master HEAD) HEAD --name-only | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')
+  ;; vim $(git files design-sprint)
+  ;; files = !git diff --name-only
+  files = "!f() { $EDITOR $(git diff --name-only ${1:-master}); }; f"
+  ; git log master..HEAD --pretty=%h | tail -n1
+  ;files = !$EDITOR $(git diff --name-only $(git log master..HEAD --pretty=%h | tail -n1))
 
   ; open = !$EDITOR $(git show --pretty="" --name-only HEAD)
   ; open = !$EDITOR $((git status --short | awk '$1 ~ /^M|A|U/ {print $2}'; git diff $(git merge-base master HEAD) HEAD --name-only) | sort | uniq | grep -v 'db/schema' | grep -e '.rb$' -e '.slim$' -e '.haml$' -e '.js$' -e '.jsx$' -e '.jbuilder$' -e '.css$' -e '.scss$')

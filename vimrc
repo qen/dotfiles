@@ -30,14 +30,15 @@ let g:airline#extensions#tabline#fnamemod     = ':p:.:s?app/??:s?javascript/??:s
 " languages
 Plug 'slim-template/vim-slim'
 Plug 'tpope/vim-haml'
-Plug 'tpope/vim-rails'
+" Plug 'tpope/vim-rails'
 Plug 'airblade/vim-gitgutter'
-Plug 'hail2u/vim-css3-syntax'
-Plug 'vim-ruby/vim-ruby'
+" Plug 'hail2u/vim-css3-syntax'
+" Plug 'vim-ruby/vim-ruby'
 " Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
-Plug 'yuezk/vim-js'
-Plug 'maxmellon/vim-jsx-pretty'
+Plug 'neoclide/vim-jsx-improve'
+" Plug 'mxw/vim-jsx'
+" Plug 'yuezk/vim-js'
+" Plug 'maxmellon/vim-jsx-pretty'
 Plug 'chr4/nginx.vim'
 Plug 'plasticboy/vim-markdown'
 let g:vim_markdown_folding_disabled = 1
@@ -52,10 +53,10 @@ Plug 'projekt0n/github-nvim-theme'
 Plug 'nxvu699134/vn-night.nvim'
 Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
 " Plug 'nvim-treesitter-endwise'
-Plug 'theHamsta/nvim-treesitter-pairs'
 Plug 'andymass/vim-matchup'
 let g:matchup_matchparen_offscreen = {'method': 'scrolloff'}
 Plug 'windwp/nvim-ts-autotag'
+Plug 'theHamsta/nvim-treesitter-pairs'
 Plug 'nvim-treesitter/nvim-treesitter-context'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 " :TSInstall javascript html json ruby yaml dockerfile sql markdown bash graphql css regex scss
@@ -110,6 +111,7 @@ let g:closetag_shortcut = '>'
 Plug 'godlygeek/tabular'
 Plug 'wincent/scalpel'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
 " Plug 'tpope/vim-rhubarb'
 " Plug 'tommcdo/vim-fubitive'
 " let g:fugitive_bitbucket_domains = [ 'talkpush' ]
@@ -139,7 +141,14 @@ map T <Plug>Sneak_T
 
 Plug 'mattn/emmet-vim'
 let g:user_emmet_install_global = 0
-autocmd FileType html,css,jsx,php,erb,javascript,javascript.jsx EmmetInstall
+" Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
+let g:js_file_import_use_fzf = 1
+let g:js_file_import_from_root = 0
+let g:js_file_import_root = getcwd().'/src'
+let g:js_file_import_root_alias = '@/'
+
+" autocmd FileType html,css,jsx,php,erb,javascript,javascript.jsx EmmetInstall
+autocmd FileType html,css,jsx,php,erb EmmetInstall
 
 " https://andrew.stwrt.ca/posts/vim-ctags/
 " brew install ctags
@@ -154,6 +163,7 @@ autocmd FileType html,css,jsx,php,erb,javascript,javascript.jsx EmmetInstall
 
 " ctags --languages=javascript -R -f ./.git/tags.js .
 " ctags-js
+" ctags --languages=+JavaScript -R -f .guttentags src node_modules/@mui
 " autocmd BufEnter *.jsx,*.js set tags=.guttentags;,.git/tags.js
 "
 " also see ~/.ctags config file
@@ -167,10 +177,11 @@ autocmd FileType html,css,jsx,php,erb,javascript,javascript.jsx EmmetInstall
 " :GutentagsUpdate
 " :GutentagsUpdate!
 "
-" Plug 'https://github.com/ludovicchabant/vim-gutentags'
-" set statusline+=%{gutentags#statusline()}
-" let g:gutentags_enabled=1
-" let g:gutentags_ctags_tagfile='.guttentags'
+Plug 'https://github.com/ludovicchabant/vim-gutentags'
+set statusline+=%{gutentags#statusline()}
+let g:gutentags_enabled=1
+let g:gutentags_ctags_tagfile='.guttentags'
+let g:gutentags_ctags_exclude = ["*.min.js", "*.min.css", "build", "vendor", ".git", ".next", "node_modules", "*.vim/bundle/*", "public"]
 " let g:gutentags_generate_on_write=0 " disable it and just run the :GutentagsUpdate manually
 " let g:gutentags_ctags_auto_set_tags = 0
 " let g:gutentags_trace = 1
@@ -202,9 +213,10 @@ Plug 'tpope/vim-dispatch'
 " let g:rspec_command = "Dispatch bundle exec rspec {spec}"
 let g:rspec_command = "Dispatch! bundle exec rspec -I . {spec}"
 let g:rspec_runner = "os_x_iterm2"
-" autocmd WinNew * wincmd L
-au FileType qf wincmd L
+" quick fix to openn in vertical
+" au FileType qf wincmd L
 let g:dispatch_tmux_height = '50%'
+let g:dispatch_quickfix_height = 15
 
 function! FocusRunNearestOrLastSpec(force_last)
   " call PryFocusStart()
@@ -230,16 +242,17 @@ function! FocusRunNearestOrLastSpec(force_last)
   end
 
   if binding == 0
-    vertical Copen
+    " vertical Copen
+    Copen
   end
 endfunction
 
 function! PryFocusRunNearestSpec()
-  cclose
   if match(getline('.'), "binding\.pry") == -1
     execute "normal \<s-O>binding.pry\<ESC>:w\<CR>"
   end
-  call FocusRunNearestOrLastSpec('last')
+  " cclose
+  " call FocusRunNearestOrLastSpec('last')
 endfunction
 
 " run focus if there is binding.pry
@@ -258,8 +271,9 @@ noremap <Leader>RT :Dispatch! bundle exec rails i18n:js:export<CR>
 noremap <Leader>Z :Start zsh<CR>
 
 function! QuickFixLast()
-  vertical Copen
-  execute "normal \<s-G>zz<CR>"
+  " vertical Copen
+  Copen
+  execute "normal \<s-G>zb<CR>"
 endfunction
 
 noremap <silent> <Leader><Leader> :call QuickFixLast()<CR>
@@ -274,6 +288,7 @@ call plug#end()
 nmap <leader>gd <Plug>(coc-definition)
 nmap <leader>gr <Plug>(coc-references)
 nmap <leader>gb :Git blame<CR>
+nmap <leader>GB :Git blame<CR>o:GB<CR>
 nmap <leader>gh :History<CR>
 
 " gruvbox https://github.com/morhetz/gruvbox/wiki/Usage
@@ -296,7 +311,7 @@ let agsource = "ag -g ''".appignore
 
 let appmvc    = ''
 let appassets = ''
-let appspec   = 'app spec jest features'
+let appspec   = 'app src spec jest'
 if filereadable(getcwd().'/.appfolders')
   let appfolders = readfile(getcwd().'/.appfolders')
   if (get(appfolders, 0, -1) >= 0) | let appmvc    = appfolders[0] | endif
@@ -391,7 +406,7 @@ function! SaveAs()
     execute ':e '.file
   endif
 endfunction
-command! SaveAs call SaveAs()
+" command! SaveAs call SaveAs()
 nnoremap <F2> :call SaveAs()<CR>
 nmap <F5> <Plug>(Scalpel)
 
@@ -502,11 +517,11 @@ endfunction
 command! -nargs=+ -complete=dir AgIn call s:AgIn(<f-args>)
 
 function! RelativeParentFileSearch(path)
-  let path = a:path
-  let folders = split(expand(path), '/') | let parent = '' | let query = expand(path).'/'
+  let path = a:path | let folders = split(expand(path), '/') | let parent = expand(path).'/'
+  let query = ''
   if len(folders) > 2
-    let parent = join(folders[0:1], '/')
-    let query  = join(folders[2:], '/').'/'
+    let parent = join(folders[0:0], '/')
+    let query  = join(folders[1:], '/').'/'
   endif
 
   " let filename = fnamemodify(expand('%:t'), ':r')
@@ -515,7 +530,7 @@ function! RelativeParentFileSearch(path)
   " endif
 
   " call fzf#vim#files(parent,  { 'source': g:agsource,  'options': '--print-query -i --no-hscroll -q "'.(query).'"' } )
-  call fzf#vim#files(parent,  { 'source': g:agsource,  'options': '-i --no-hscroll -q "'.(query).'"' } )
+  call fzf#vim#files(parent,  { 'source': AgSourceSimilar(),  'options': '-i --no-hscroll -q "'.(query).'"' } )
 endfunction
 
 function! SimilarFilenameSearch(visualrange)
@@ -536,14 +551,14 @@ let g:ag_known_file_types = {
   \ 'yaml'            : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|feature|js|jsx|yml)$"',
   \ 'eruby.yaml'      : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|feature|js|jsx|yml)$"',
   \ 'slim'            : ' "\.(rb|rake|slim|erb|haml|jbuilder|json|js|jsx)$"',
-  \ 'javascriptreact' : ' "\.(js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$"',
-  \ 'javascript'      : ' "\.(js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$"',
-  \ 'javascript.jsx'  : ' "\.(js|jsx|css|sass|scss|rb|jbuilder|json|slim|erb)$"',
-  \ 'css'             : ' "\.(css|sass|scss|js|jsx|rb|jbuilder|json|slim|erb)$"',
-  \ 'scss'            : ' "\.(css|sass|scss|js|jsx|rb|jbuilder|json|slim|erb)$"',
+  \ 'javascriptreact' : ' "\.(js|jsx|css|sass|scss|jbuilder|json|slim|haml)$"',
+  \ 'javascript'      : ' "\.(js|jsx|css|sass|scss|jbuilder|json|slim|haml)$"',
+  \ 'javascript.jsx'  : ' "\.(js|jsx|css|sass|scss|jbuilder|json|slim|haml)$"',
+  \ 'css'             : ' "\.(css|sass|scss|js|jsx|jbuilder|json|slim|haml|svg)$"',
+  \ 'scss'            : ' "\.(css|sass|scss|js|jsx|jbuilder|json|slim|haml|svg)$"',
   \ 'php'             : ' "\.(php)$"',
-  \ 'haml'            : ' "\.(slim|jbuilder|json|erb|haml|rb|rake|js|jsx|css|sass|scss)$"',
-  \ 'markdown'        : ' "\.(md|rb)$"' }
+  \ 'haml'            : ' "\.(slim|jbuilder|json|erb|haml|rb|rake|js|jsx|css|sass|scss|svg)$"',
+  \ 'markdown'        : ' "\.(md|rb|jsx|js|rake|slim|haml|svg)$"' }
 
 function! AgSimilarFile(visual) range
   let needle = s:input_visual_cword(a:visual)
@@ -596,8 +611,10 @@ endfunction
 map <S-k> <Nop>
 
 " save file
+" nnoremap <C-s> :w <bar> :e <bar> :normal! zv zz<CR>
+" nnoremap <C-F> :e <bar> :normal! zv zz<CR>
+nnoremap <leader>w :w <bar> :e <bar> :normal! zv zz<CR>
 nnoremap <C-s> :w<CR>
-" nnoremap <leader>w :w<CR>
 
 " buffer navigation uses Tab
 nnoremap <Tab>h :bprev!<CR>
@@ -618,9 +635,9 @@ nnoremap <c-n><c-f> :e <C-R>=fnamemodify(@%, ':h')<CR>/
 nnoremap <c-n><c-n> :e<space>
 
 " open files
-nnoremap <c-f><c-p> :Files <C-R>=fnamemodify(@%, ':h')<CR>/
+nnoremap <c-f><c-p> :Files <C-R>=fnamemodify(@%, ':h:h')<CR>/
 " nnoremap <c-f><c-p> :Files<space>
-nnoremap <c-f><c-g> :GFiles?<CR>
+nnoremap <c-f><c-g> :GFiles<CR>
 " search similar file name
 nnoremap <c-f><c-f> :call SimilarFilenameSearch('0')<CR>
 vnoremap <c-f><c-f> :call SimilarFilenameSearch( GetVisualSelection() )<CR>
@@ -658,7 +675,8 @@ nnoremap <silent> <Enter><Enter> :call fzf#vim#files('', { 'source': '(git statu
 
 " - app spec similar file
 " nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec, 'options': '--print-query -i' } )<CR>
-nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec } )<CR>
+" nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': AgSourceSimilar().appspec } )<CR>
+nnoremap <silent> <C-p> :call fzf#vim#files('', { 'source': g:agsource } )<CR>
 
 
 " --------------------
@@ -780,13 +798,16 @@ set foldcolumn=0
 " set foldmethod=syntax " za(open/close folding) zO(open) zC(lose)
 " set foldmethod=nvim_treesitter#foldexpr() " za(open/close folding) zO(open) zC(lose)
 set foldlevel=1 " zr reduce folding, zm increase folding
-set foldnestmax=5
+set foldnestmax=10
 " set foldlevel=20
 set foldmethod=expr
 set foldexpr=nvim_treesitter#foldexpr()
 
 set scrolloff=3
 set sidescrolloff=30
+
+" autocmd FileType javascript set filetype=jsx
+" autocmd FileType javascriptreact set filetype=jsx
 
 " globpath wildignore
 " https://stackoverflow.com/questions/25167894/how-to-exclude-files-when-using-globpath-function
@@ -813,8 +834,8 @@ colorscheme gruvbox
 " colorscheme dracula
 " colorscheme github_dark_default
 " colorscheme github_dimmed
-colorscheme vn-night
-" colorscheme gruvbox-baby
+" colorscheme vn-night
+colorscheme gruvbox-baby
 
 " override folded color
 " highlight LineNr term=NONE cterm=NONE ctermfg=2C2F33 ctermbg=NONE gui=NONE guifg=2C2F33 guibg=NONE
@@ -845,11 +866,15 @@ augroup END
 lua << EOF
 require'nvim-treesitter.configs'.setup {
   highlight = {
-    enable=true
+    enable = true
+  },
+  indent = {
+    enable = true,
+    disable = { "ruby" }
   },
   -- pairs = {
-  --   enable = true,
-  --   disable = {},
+  --   enable = false,
+  -- --   disable = {},
   --   highlight_pair_events = {}, -- e.g. {"CursorMoved"}, -- when to highlight the pairs, use {} to deactivate highlighting
   --   highlight_self = false, -- whether to highlight also the part of the pair under cursor (or only the partner)
   --   goto_right_end = false, -- whether to go to the end of the right partner or the beginning
@@ -865,16 +890,17 @@ require'nvim-treesitter.configs'.setup {
   --                              -- E.g. whether to delete the angle bracket or whole tag in  <pair> </pair>
   --   }
   -- },
-  autotag = {
-    enable = true,
-    filetypes = {
-      'html', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'svelte', 'vue', 'tsx', 'jsx', 'rescript', 'javascript.jsx',
-      'xml',
-      'php',
-      'markdown',
-      'glimmer','handlebars','hbs'
-    },
-  },
+  -- autotag = {
+  --   enable = true,
+  --   filetypes = {
+  --     'html',  'typescript',  'typescriptreact', 'svelte', 'vue', 'tsx', 'rescript',
+  --     'jsx', 'javascript', 'javascriptreact', 'javascript.jsx',
+  --     'xml',
+  --     'php',
+  --     'markdown',
+  --     'glimmer','handlebars','hbs'
+  --   },
+  -- },
   matchup = {
     enable = true,              -- mandatory, false will disable the whole extension
   },
@@ -959,6 +985,9 @@ npairs.setup({ map_cr = true })
 npairs.add_rules(require('nvim-autopairs.rules.endwise-elixir'))
 npairs.add_rules(require('nvim-autopairs.rules.endwise-lua'))
 npairs.add_rules(require('nvim-autopairs.rules.endwise-ruby'))
+-- npairs.add_rules(require('nvim-autopairs.rules.ts_basic'))
+
+require('nvim-ts-autotag').setup()
 
 -- npairs.setup({ map_bs = false, map_cr = false })
 -- vim.g.coq_settings = { keymap = { recommended = false } }
